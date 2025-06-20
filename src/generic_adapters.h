@@ -106,7 +106,7 @@ public:
         return IntValue2Value(std::move(static_cast<const T*>(this)->GetItem(idx).value()));
     }
 
-    nonstd::optional<size_t> GetSize() const override
+    std::optional<size_t> GetSize() const override
     {
         return static_cast<const T*>(this)->GetItemsCountImpl();
     }
@@ -175,7 +175,7 @@ public:
         }
     };
 
-    nonstd::optional<size_t> GetSize() const override
+    std::optional<size_t> GetSize() const override
     {
         return static_cast<const T*>(this)->GetItemsCountImpl();
     }

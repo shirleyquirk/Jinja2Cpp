@@ -68,7 +68,7 @@ public:
         result.reserve(j->MemberCount());
         for (auto it = j->MemberBegin(); it != j->MemberEnd(); ++ it)
         {
-            result.emplace_back(ConvertString<std::string>(nonstd::basic_string_view<typename T::Ch>(it->name.GetString())));
+            result.emplace_back(ConvertString<std::string>(std::basic_string_view<typename T::Ch>(it->name.GetString())));
         }
         return result;
     }
@@ -97,10 +97,10 @@ struct RapidJsonArrayAccessor
     using ReflectedDataHolder<rapidjson::GenericValue<Enc>, false>::ReflectedDataHolder;
     using ThisType = RapidJsonArrayAccessor<Enc>;
 
-    nonstd::optional<size_t> GetSize() const override
+    std::optional<size_t> GetSize() const override
     {
         auto j = this->GetValue();
-        return j ? j->Size() : nonstd::optional<size_t>();
+        return j ? j->Size() : std::optional<size_t>();
     }
 
     const IIndexBasedAccessor* GetIndexer() const override

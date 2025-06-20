@@ -492,7 +492,7 @@ private:
     bool m_withContext{};
     RendererPtr m_renderer;
     ExpressionEvaluatorPtr<> m_nameExpr;
-    nonstd::optional<std::string> m_namespace;
+    std::optional<std::string> m_namespace;
     std::unordered_map<std::string, std::string> m_namesToImport;
 };
 

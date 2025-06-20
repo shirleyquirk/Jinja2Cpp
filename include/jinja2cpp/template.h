@@ -18,15 +18,15 @@ class JINJA2CPP_EXPORT TemplateEnv;
 template<typename CharT>
 class TemplateImpl;
 template<typename U>
-using Result = nonstd::expected<U, ErrorInfo>;
+using Result = std::expected<U, ErrorInfo>;
 template<typename U>
-using ResultW = nonstd::expected<U, ErrorInfoW>;
+using ResultW = std::expected<U, ErrorInfoW>;
 
 template<typename CharT>
 struct MetadataInfo
 {
     std::string metadataType;
-    nonstd::basic_string_view<CharT> metadata;
+    std::basic_string_view<CharT> metadata;
     SourceLocation location;
 };
 

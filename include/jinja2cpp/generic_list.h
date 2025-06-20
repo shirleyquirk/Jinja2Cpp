@@ -144,7 +144,7 @@ struct IListItemAccessor : virtual IComparable
      *
      * @return Non-empty optional with the valid size of the list or empty optional in case of non-random sequence implementation
      */
-    virtual nonstd::optional<size_t> GetSize() const = 0;
+    virtual std::optional<size_t> GetSize() const = 0;
 
     /*!
      * \brief Helper factory method of particular enumerator implementation
@@ -211,9 +211,9 @@ public:
      *
      * @return Actual size of the generic list or empty optional object if not applicable
      */
-    nonstd::optional<size_t> GetSize() const
+    std::optional<size_t> GetSize() const
     {
-        return m_accessor ? m_accessor()->GetSize() : nonstd::optional<size_t>();
+        return m_accessor ? m_accessor()->GetSize() : std::optional<size_t>();
     }
 
     /*!

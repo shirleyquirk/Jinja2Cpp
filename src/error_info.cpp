@@ -32,7 +32,7 @@ struct ValueRenderer
     }
 
     template<typename CharU>
-    void operator()(const nonstd::basic_string_view<CharU>& val) const
+    void operator()(const std::basic_string_view<CharU>& val) const
     {
         fmt::format_to(ctx->out(), UNIVERSAL_STR("{}").GetValue<CharT>(), jinja2::ConvertString<std::basic_string<CharT>>(val));
     }
@@ -47,7 +47,7 @@ struct ValueRenderer
                 isFirst = false;
             else
                 fmt::format_to(ctx->out(), UNIVERSAL_STR(", ").GetValue<CharT>());
-            nonstd::visit(ValueRenderer<FmtCtx>(ctx), val.data());
+            std::visit(ValueRenderer<FmtCtx>(ctx), val.data());
         }
         fmt::format_to(ctx->out(), UNIVERSAL_STR("}}").GetValue<CharT>());
     }
@@ -64,7 +64,7 @@ struct ValueRenderer
                 fmt::format_to(ctx->out(), UNIVERSAL_STR(", ").GetValue<CharT>());
 
             fmt::format_to(ctx->out(), UNIVERSAL_STR("{{\"{}\",").GetValue<CharT>(), jinja2::ConvertString<std::basic_string<CharT>>(val.first));
-            nonstd::visit(ValueRenderer<FmtCtx>(ctx), val.second.data());
+            std::visit(ValueRenderer<FmtCtx>(ctx), val.second.data());
             fmt::format_to(ctx->out(), UNIVERSAL_STR("}}").GetValue<CharT>());
         }
         fmt::format_to(ctx->out(), UNIVERSAL_STR("}}").GetValue<CharT>());
@@ -104,7 +104,7 @@ struct formatter<jinja2::Value, CharT>
     template<typename FormatContext>
     auto format(const jinja2::Value& val, FormatContext& ctx)
     {
-        nonstd::visit(ValueRenderer<FormatContext>(&ctx), val.data());
+        std::visit(ValueRenderer<FormatContext>(&ctx), val.data());
         return fmt::format_to(ctx.out(), UNIVERSAL_STR("").GetValue<CharT>());
     }
 };

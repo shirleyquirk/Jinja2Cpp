@@ -58,7 +58,7 @@ void ForStatement::RenderLoop(const InternalValue& loopVal, OutStream& os, Rende
         return;
     }
 
-    nonstd::optional<size_t> listSize;
+    std::optional<size_t> listSize;
     if (m_ifExpr)
     {
         filteredList = CreateFilteredAdapter(loopItems, values);
@@ -166,7 +166,7 @@ void ForStatement::RenderLoop(const InternalValue& loopVal, OutStream& os, Rende
 ListAdapter ForStatement::CreateFilteredAdapter(const ListAdapter& loopItems, RenderContext& values) const
 {
     return ListAdapter::CreateAdapter([e = loopItems.GetEnumerator(), this, &values]() mutable {
-        using ResultType = nonstd::optional<InternalValue>;
+        using ResultType = std::optional<InternalValue>;
 
         auto& tempContext = values.EnterScope();
         for (bool finish = !e->MoveNext(); !finish; finish = !e->MoveNext())
@@ -411,7 +411,7 @@ struct TemplateImplVisitor
     }
 
     template<typename CharT>
-    Result operator()(nonstd::expected<std::shared_ptr<TemplateImpl<CharT>>, ErrorInfoTpl<CharT>> tpl) const
+    Result operator()(std::expected<std::shared_ptr<TemplateImpl<CharT>>, ErrorInfoTpl<CharT>> tpl) const
     {
         if (!m_throwError && !tpl)
         {

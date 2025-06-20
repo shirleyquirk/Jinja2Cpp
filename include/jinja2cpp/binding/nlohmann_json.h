@@ -66,10 +66,10 @@ struct NLohmannJsonArrayAccessor : IListItemAccessor, IIndexBasedAccessor, Refle
 {
     using ReflectedDataHolder<nlohmann::json>::ReflectedDataHolder;
 
-    nonstd::optional<size_t> GetSize() const override
+    std::optional<size_t> GetSize() const override
     {
         auto j = this->GetValue();
-        return j ? j->size() : nonstd::optional<size_t>();
+        return j ? j->size() : std::optional<size_t>();
     }
 
     const IIndexBasedAccessor* GetIndexer() const override

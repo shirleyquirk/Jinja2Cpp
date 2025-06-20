@@ -158,7 +158,7 @@ public:
      *
      * @return Either loaded template or load/parse error. See \ref ErrorInfoTpl
      */
-    nonstd::expected<Template, ErrorInfo> LoadTemplate(std::string fileName);
+    std::expected<Template, ErrorInfo> LoadTemplate(std::string fileName);
     /*!
      * \brief Load wide char template with the specified name via registered file handlers
      *
@@ -170,7 +170,7 @@ public:
      *
      * @return Either loaded template or load/parse error. See \ref ErrorInfoTpl
      */
-    nonstd::expected<TemplateW, ErrorInfoW> LoadTemplateW(std::string fileName);
+    std::expected<TemplateW, ErrorInfoW> LoadTemplateW(std::string fileName);
 
     /*!
      * \brief Add global variable to the environment
@@ -260,7 +260,7 @@ private:
 
     struct BaseTemplateInfo
     {
-        nonstd::optional<TimePoint> lastModification;
+        std::optional<TimePoint> lastModification;
         TimeStamp lastAccessTime;
         FilesystemHandlerPtr handler;
         bool operator==(const BaseTemplateInfo& other) const

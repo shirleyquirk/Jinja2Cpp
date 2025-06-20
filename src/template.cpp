@@ -36,13 +36,13 @@ Result<void> Template::Load(const char* tpl, std::string tplName)
 {
     std::string t(tpl);
     auto result = GetImpl<char>(m_impl)->Load(std::move(t), std::move(tplName));
-    return !result ? Result<void>() : nonstd::make_unexpected(std::move(result.get()));
+    return !result ? Result<void>() : std::make_unexpected(std::move(result.get()));
 }
 
 Result<void> Template::Load(const std::string& str, std::string tplName)
 {
     auto result = GetImpl<char>(m_impl)->Load(str, std::move(tplName));
-    return !result ? Result<void>() : nonstd::make_unexpected(std::move(result.get()));
+    return !result ? Result<void>() : std::make_unexpected(std::move(result.get()));
 }
 
 Result<void> Template::Load(std::istream& stream, std::string tplName)
@@ -59,7 +59,7 @@ Result<void> Template::Load(std::istream& stream, std::string tplName)
     }
 
     auto result = GetImpl<char>(m_impl)->Load(std::move(t), std::move(tplName));
-    return !result ? Result<void>() : nonstd::make_unexpected(std::move(result.get()));
+    return !result ? Result<void>() : std::make_unexpected(std::move(result.get()));
 }
 
 Result<void> Template::LoadFromFile(const std::string& fileName)
@@ -80,14 +80,14 @@ Result<void> Template::Render(std::ostream& os, const jinja2::ValuesMap& params)
     if (!result)
         os.write(buffer.data(), buffer.size());
 
-    return !result ? Result<void>() : nonstd::make_unexpected(std::move(result.get()));
+    return !result ? Result<void>() : std::make_unexpected(std::move(result.get()));
 }
 
 Result<std::string> Template::RenderAsString(const jinja2::ValuesMap& params)
 {
     std::string buffer;
     auto result = GetImpl<char>(m_impl)->Render(buffer, params);
-    return !result ? Result<std::string>(std::move(buffer)) : Result<std::string>(nonstd::make_unexpected(std::move(result.get())));;
+    return !result ? Result<std::string>(std::move(buffer)) : Result<std::string>(std::make_unexpected(std::move(result.get())));;
 }
 
 Result<GenericMap> Template::GetMetadata()
@@ -117,13 +117,13 @@ ResultW<void> TemplateW::Load(const wchar_t* tpl, std::string tplName)
 {
     std::wstring t(tpl);
     auto result = GetImpl<wchar_t>(m_impl)->Load(t, std::move(tplName));
-    return !result ? ResultW<void>() : nonstd::make_unexpected(std::move(result.get()));
+    return !result ? ResultW<void>() : std::make_unexpected(std::move(result.get()));
 }
 
 ResultW<void> TemplateW::Load(const std::wstring& str, std::string tplName)
 {
     auto result = GetImpl<wchar_t>(m_impl)->Load(str, std::move(tplName));
-    return !result ? ResultW<void>() : nonstd::make_unexpected(std::move(result.get()));
+    return !result ? ResultW<void>() : std::make_unexpected(std::move(result.get()));
 }
 
 ResultW<void> TemplateW::Load(std::wistream& stream, std::string tplName)
@@ -140,7 +140,7 @@ ResultW<void> TemplateW::Load(std::wistream& stream, std::string tplName)
     }
 
     auto result = GetImpl<wchar_t>(m_impl)->Load(t, std::move(tplName));
-    return !result ? ResultW<void>() : nonstd::make_unexpected(std::move(result.get()));
+    return !result ? ResultW<void>() : std::make_unexpected(std::move(result.get()));
 }
 
 ResultW<void> TemplateW::LoadFromFile(const std::string& fileName)
@@ -159,7 +159,7 @@ ResultW<void> TemplateW::Render(std::wostream& os, const jinja2::ValuesMap& para
     auto result = GetImpl<wchar_t>(m_impl)->Render(buffer, params);
     if (!result)
         os.write(buffer.data(), buffer.size());
-    return !result ? ResultW<void>() : ResultW<void>(nonstd::make_unexpected(std::move(result.get())));
+    return !result ? ResultW<void>() : ResultW<void>(std::make_unexpected(std::move(result.get())));
 }
 
 ResultW<std::wstring> TemplateW::RenderAsString(const jinja2::ValuesMap& params)
@@ -167,7 +167,7 @@ ResultW<std::wstring> TemplateW::RenderAsString(const jinja2::ValuesMap& params)
     std::wstring buffer;
     auto result = GetImpl<wchar_t>(m_impl)->Render(buffer, params);
 
-    return !result ? buffer : ResultW<std::wstring>(nonstd::make_unexpected(std::move(result.get())));
+    return !result ? buffer : ResultW<std::wstring>(std::make_unexpected(std::move(result.get())));
 }
 
 ResultW<GenericMap> TemplateW::GetMetadata()

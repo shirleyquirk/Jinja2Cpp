@@ -109,13 +109,13 @@ inline in_place_t in_place_index( detail::in_place_index_tag<K> = detail::in_pla
 
 // mimic templated typedef:
 
-#define nonstd_lite_in_place_t(      T)  nonstd::in_place_t(&)( nonstd::detail::in_place_type_tag<T>  )
-#define nonstd_lite_in_place_type_t( T)  nonstd::in_place_t(&)( nonstd::detail::in_place_type_tag<T>  )
-#define nonstd_lite_in_place_index_t(K)  nonstd::in_place_t(&)( nonstd::detail::in_place_index_tag<K> )
+#define nonstd_lite_in_place_t(      T)  std::in_place_t(&)( std::detail::in_place_type_tag<T>  )
+#define nonstd_lite_in_place_type_t( T)  std::in_place_t(&)( std::detail::in_place_type_tag<T>  )
+#define nonstd_lite_in_place_index_t(K)  std::in_place_t(&)( std::detail::in_place_index_tag<K> )
 
-#define nonstd_lite_in_place(      T)    nonstd::in_place_type<T>
-#define nonstd_lite_in_place_type( T)    nonstd::in_place_type<T>
-#define nonstd_lite_in_place_index(K)    nonstd::in_place_index<K>
+#define nonstd_lite_in_place(      T)    std::in_place_type<T>
+#define nonstd_lite_in_place_type( T)    std::in_place_type<T>
+#define nonstd_lite_in_place_index(K)    std::in_place_index<K>
 
 } // namespace nonstd
 

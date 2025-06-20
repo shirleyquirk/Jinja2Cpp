@@ -38,7 +38,7 @@ struct StringEncoder : public visitors::BaseVisitor<TargetString>
     }
 
     template<typename CharT>
-    TargetString operator() (const nonstd::basic_string_view<CharT>& str) const
+    TargetString operator() (const std::basic_string_view<CharT>& str) const
     {
         std::basic_string<CharT> result;
 

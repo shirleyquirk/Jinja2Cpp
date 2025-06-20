@@ -68,9 +68,9 @@ template<typename CharT>
 struct ArgPromoter<std::basic_string<CharT>, void>
 {
     using string = std::basic_string<CharT>;
-    using string_view = nonstd::basic_string_view<CharT>;
+    using string_view = std::basic_string_view<CharT>;
     using other_string = std::conditional_t<std::is_same<CharT, char>::value, std::wstring, std::string>;
-    using other_string_view = std::conditional_t<std::is_same<CharT, char>::value, nonstd::wstring_view, nonstd::string_view>;
+    using other_string_view = std::conditional_t<std::is_same<CharT, char>::value, std::wstring_view, std::string_view>;
 
     ArgPromoter(const string* str)
         : m_ptr(str)
@@ -91,16 +91,16 @@ struct ArgPromoter<std::basic_string<CharT>, void>
     }
 
     const string* m_ptr;
-    mutable nonstd::optional<other_string> m_convertedStr;
+    mutable std::optional<other_string> m_convertedStr;
 };
 
 template<typename CharT>
-struct ArgPromoter<nonstd::basic_string_view<CharT>, void>
+struct ArgPromoter<std::basic_string_view<CharT>, void>
 {
     using string = std::basic_string<CharT>;
-    using string_view = nonstd::basic_string_view<CharT>;
+    using string_view = std::basic_string_view<CharT>;
     using other_string = std::conditional_t<std::is_same<CharT, char>::value, std::wstring, std::string>;
-    using other_string_view = std::conditional_t<std::is_same<CharT, char>::value, nonstd::wstring_view, nonstd::string_view>;
+    using other_string_view = std::conditional_t<std::is_same<CharT, char>::value, std::wstring_view, std::string_view>;
 
     ArgPromoter(const string_view* str)
         : m_ptr(str)
@@ -121,7 +121,7 @@ struct ArgPromoter<nonstd::basic_string_view<CharT>, void>
     }
 
     const string_view* m_ptr;
-    mutable nonstd::optional<other_string> m_convertedStr;
+    mutable std::optional<other_string> m_convertedStr;
 };
 
 template<typename Arg>
@@ -216,22 +216,22 @@ template<typename Fn, typename ... ArgDescr>
 Value InvokeUserCallable(Fn&& fn, const UserCallableParams& params, ArgDescr&& ... ad)
 {
     auto invoker = UCInvoker<Fn>(fn, params);
-    return nonstd::visit(ParamUnwrapper<UCInvoker<Fn>>(&invoker), GetParamValue(params, ad).data()...);
+    return std::visit(ParamUnwrapper<UCInvoker<Fn>>(&invoker), GetParamValue(params, ad).data()...);
 }
 
 template<typename T>
 struct TypedParam
 {
     using decayed_t = std::decay_t<T>;
-    nonstd::variant<EmptyValue, decayed_t, const decayed_t*> data;
+    std::variant<EmptyValue, decayed_t, const decayed_t*> data;
 
     bool HasValue() const { return data.index() != 0; }
     T GetValue() const
     {
         if (data.index() == 1)
-            return nonstd::get<decayed_t>(data);
+            return std::get<decayed_t>(data);
         else
-            return *nonstd::get<const decayed_t*>(data);
+            return *std::get<const decayed_t*>(data);
     }
 
     void SetPointer(const decayed_t* ptr) { data = ptr; }
@@ -288,7 +288,7 @@ auto TypedUnwrapParam(const V& value)
 {
     TypedParam<T> param;
     TypedParamUnwrapper<T> visitor(param);
-    nonstd::visit(ParamUnwrapper<TypedParamUnwrapper<T>>(&visitor), value);
+    std::visit(ParamUnwrapper<TypedParamUnwrapper<T>>(&visitor), value);
     return param;
 }
 

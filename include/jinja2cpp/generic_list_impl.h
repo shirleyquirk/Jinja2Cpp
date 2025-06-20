@@ -80,9 +80,9 @@ struct InputIteratorListAccessor : IListItemAccessor
     {
     }
 
-    nonstd::optional<size_t> GetSize() const override
+    std::optional<size_t> GetSize() const override
     {
-        return nonstd::optional<size_t>();
+        return std::optional<size_t>();
     }
 
     const IIndexBasedAccessor* GetIndexer() const override
@@ -186,9 +186,9 @@ struct ForwardIteratorListAccessor : IListItemAccessor
     {
     }
 
-    nonstd::optional<size_t> GetSize() const override
+    std::optional<size_t> GetSize() const override
     {
-        return nonstd::optional<size_t>();
+        return std::optional<size_t>();
     }
 
     const IIndexBasedAccessor* GetIndexer() const override
@@ -290,7 +290,7 @@ struct RandomIteratorListAccessor : IListItemAccessor, IIndexBasedAccessor
     {
     }
 
-    nonstd::optional<size_t> GetSize() const override
+    std::optional<size_t> GetSize() const override
     {
         return std::distance(m_begin, m_end);
     }
@@ -323,7 +323,7 @@ struct RandomIteratorListAccessor : IListItemAccessor, IIndexBasedAccessor
 
 };
 
-using ListGenerator = std::function<nonstd::optional<Value>()>;
+using ListGenerator = std::function<std::optional<Value>()>;
 
 class GeneratedListAccessor : public IListItemAccessor
 {
@@ -382,9 +382,9 @@ public:
 
     explicit GeneratedListAccessor(ListGenerator&& fn) : m_fn(std::move(fn)) {}
 
-    nonstd::optional<size_t> GetSize() const override
+    std::optional<size_t> GetSize() const override
     {
-        return nonstd::optional<size_t>();
+        return std::optional<size_t>();
     }
     const IIndexBasedAccessor* GetIndexer() const override
     {
@@ -450,12 +450,12 @@ auto MakeGenericList(It1&& it1, It2&& it2)
 /*!
  * \brief Create instance of the GenericList from the generator method (generator-based generic list)
  *
- * List generator method should follow the function signature: nonstd::optional<Value>() . Non-empty optional returned from the generator means that generated
+ * List generator method should follow the function signature: std::optional<Value>() . Non-empty optional returned from the generator means that generated
  * list isn't empty yet. The first returned empty optional object means the end of the generated sequence. For instance:
  * ```
- * jinja2::MakeGenericList([cur = 10]() mutable -> nonstd::optional<Value> {
+ * jinja2::MakeGenericList([cur = 10]() mutable -> std::optional<Value> {
  *          if (cur > 90)
- *              return nonstd::optional<Value>();
+ *              return std::optional<Value>();
  *
  *          auto tmp = cur;
  *          cur += 10;

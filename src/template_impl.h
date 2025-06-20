@@ -307,11 +307,11 @@ public:
         return curScope;
     }
 
-    using TplLoadResultType = nonstd::variant<EmptyValue,
-            nonstd::expected<std::shared_ptr<TemplateImpl<char>>, ErrorInfo>,
-            nonstd::expected<std::shared_ptr<TemplateImpl<wchar_t>>, ErrorInfoW>>;
+    using TplLoadResultType = std::variant<EmptyValue,
+            std::expected<std::shared_ptr<TemplateImpl<char>>, ErrorInfo>,
+            std::expected<std::shared_ptr<TemplateImpl<wchar_t>>, ErrorInfoW>>;
 
-    using TplOrError = nonstd::expected<std::shared_ptr<TemplateImpl<CharT>>, ErrorInfoTpl<CharT>>;
+    using TplOrError = std::expected<std::shared_ptr<TemplateImpl<CharT>>, ErrorInfoTpl<CharT>>;
 
     TplLoadResultType LoadTemplate(const std::string& fileName)
     {
@@ -336,13 +336,13 @@ public:
             errorData.srcLoc.line = 1;
             errorData.srcLoc.fileName = m_templateName;
             errorData.extraParams.push_back(IntValue2Value(fileName));
-            return TplOrError(nonstd::make_unexpected(ErrorInfoTpl<CharT>(errorData)));
+            return TplOrError(std::make_unexpected(ErrorInfoTpl<CharT>(errorData)));
         }
 
         return LoadTemplate(name.value());
     }
 
-    nonstd::expected<GenericMap, ErrorInfoTpl<CharT>> GetMetadata() const
+    std::expected<GenericMap, ErrorInfoTpl<CharT>> GetMetadata() const
     {
         auto& metadataString = m_metadataInfo.metadata;
         if (metadataString.empty())
@@ -359,15 +359,15 @@ public:
                 errorData.srcLoc = m_metadataInfo.location;
                 std::string jsonError = rapidjson::GetParseError_En(res.Code());
                 errorData.extraParams.push_back(Value(std::move(jsonError)));
-                return nonstd::make_unexpected(ErrorInfoTpl<CharT>(errorData));
+                return std::make_unexpected(ErrorInfoTpl<CharT>(errorData));
             }
-            m_metadata = std::move(nonstd::get<GenericMap>(Reflect(m_metadataJson.value()).data()));
+            m_metadata = std::move(std::get<GenericMap>(Reflect(m_metadataJson.value()).data()));
             return m_metadata.value();
         }
         return GenericMap();
     }
 
-    nonstd::expected<MetadataInfo<CharT>, ErrorInfoTpl<CharT>> GetMetadataRaw() const { return m_metadataInfo; }
+    std::expected<MetadataInfo<CharT>, ErrorInfoTpl<CharT>> GetMetadataRaw() const { return m_metadataInfo; }
 
     bool operator==(const TemplateImpl<CharT>& other) const
     {
@@ -421,19 +421,19 @@ private:
         {
             using string_t = std::basic_string<CharT>;
             str = string_t();
-            return OutStream([writer = StringStreamWriter<CharT>(&nonstd::get<string_t>(str))]() mutable -> OutStream::StreamWriter* { return &writer; });
+            return OutStream([writer = StringStreamWriter<CharT>(&std::get<string_t>(str))]() mutable -> OutStream::StreamWriter* { return &writer; });
         }
 
-        nonstd::variant<EmptyValue,
-            nonstd::expected<std::shared_ptr<TemplateImpl<char>>, ErrorInfo>,
-            nonstd::expected<std::shared_ptr<TemplateImpl<wchar_t>>, ErrorInfoW>> LoadTemplate(const std::string& fileName) const override
+        std::variant<EmptyValue,
+            std::expected<std::shared_ptr<TemplateImpl<char>>, ErrorInfo>,
+            std::expected<std::shared_ptr<TemplateImpl<wchar_t>>, ErrorInfoW>> LoadTemplate(const std::string& fileName) const override
         {
             return m_host->LoadTemplate(fileName);
         }
 
-        nonstd::variant<EmptyValue,
-                nonstd::expected<std::shared_ptr<TemplateImpl<char>>, ErrorInfo>,
-                nonstd::expected<std::shared_ptr<TemplateImpl<wchar_t>>, ErrorInfoW>> LoadTemplate(const InternalValue& fileName) const override
+        std::variant<EmptyValue,
+                std::expected<std::shared_ptr<TemplateImpl<char>>, ErrorInfo>,
+                std::expected<std::shared_ptr<TemplateImpl<wchar_t>>, ErrorInfoW>> LoadTemplate(const InternalValue& fileName) const override
         {
             return m_host->LoadTemplate(fileName);
         }
@@ -477,8 +477,8 @@ private:
     std::basic_string<CharT> m_template;
     std::string m_templateName;
     RendererPtr m_renderer;
-    mutable nonstd::optional<GenericMap> m_metadata;
-    mutable nonstd::optional<JsonDocumentType> m_metadataJson;
+    mutable std::optional<GenericMap> m_metadata;
+    mutable std::optional<JsonDocumentType> m_metadataJson;
     MetadataInfo<CharT> m_metadataInfo;
 };
 

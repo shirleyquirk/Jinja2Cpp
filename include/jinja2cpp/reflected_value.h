@@ -133,7 +133,7 @@ protected:
     }
 
 private:
-    nonstd::optional<T> m_value;
+    std::optional<T> m_value;
     const T* m_valuePtr = nullptr;
 };
 
@@ -289,7 +289,7 @@ struct ContainerReflector
         {
         }
 
-        nonstd::optional<size_t> GetSize() const override
+        std::optional<size_t> GetSize() const override
         {
             return m_value.size();
         }
@@ -336,7 +336,7 @@ struct ContainerReflector
             : m_value(ptr)
         {
         }
-        nonstd::optional<size_t> GetSize() const override
+        std::optional<size_t> GetSize() const override
         {
             return m_value->size();
         }
@@ -530,10 +530,10 @@ struct Reflector<std::basic_string<CharT>>
 };
 
 template<typename CharT>
-struct Reflector<nonstd::basic_string_view<CharT>>
+struct Reflector<std::basic_string_view<CharT>>
 {
-    static auto Create(nonstd::basic_string_view<CharT> str) { return Value(std::move(str)); }
-    static auto CreateFromPtr(const nonstd::basic_string_view<CharT>* str) { return Value(*str); }
+    static auto Create(std::basic_string_view<CharT> str) { return Value(std::move(str)); }
+    static auto CreateFromPtr(const std::basic_string_view<CharT>* str) { return Value(*str); }
 };
 
 template<>

@@ -9,7 +9,7 @@ struct TemplateFunctions;
 template<>
 struct TemplateFunctions<char>
 {
-    using ResultType = nonstd::expected<Template, ErrorInfo>;
+    using ResultType = std::expected<Template, ErrorInfo>;
     static Template CreateTemplate(TemplateEnv* env) { return Template(env); }
     static auto LoadFile(const std::string& fileName, const IFilesystemHandler* fs) { return fs->OpenStream(fileName); }
 };
@@ -17,7 +17,7 @@ struct TemplateFunctions<char>
 template<>
 struct TemplateFunctions<wchar_t>
 {
-    using ResultType = nonstd::expected<TemplateW, ErrorInfoW>;
+    using ResultType = std::expected<TemplateW, ErrorInfoW>;
     static TemplateW CreateTemplate(TemplateEnv* env) { return TemplateW(env); }
     static auto LoadFile(const std::string& fileName, const IFilesystemHandler* fs) { return fs->OpenWStream(fileName); }
 };
@@ -79,15 +79,15 @@ auto TemplateEnv::LoadTemplateImpl(TemplateEnv* env, std::string fileName, const
     errorData.srcLoc.fileName = "";
     errorData.extraParams.push_back(Value(fileName));
 
-    return ResultType(nonstd::make_unexpected(ErrorType(errorData)));
+    return ResultType(std::make_unexpected(ErrorType(errorData)));
 }
 
-nonstd::expected<Template, ErrorInfo> TemplateEnv::LoadTemplate(std::string fileName)
+std::expected<Template, ErrorInfo> TemplateEnv::LoadTemplate(std::string fileName)
 {
     return LoadTemplateImpl<char>(this, std::move(fileName), m_filesystemHandlers, m_templateCache);
 }
 
-nonstd::expected<TemplateW, ErrorInfoW> TemplateEnv::LoadTemplateW(std::string fileName)
+std::expected<TemplateW, ErrorInfoW> TemplateEnv::LoadTemplateW(std::string fileName)
 {
     return LoadTemplateImpl<wchar_t>(this, std::move(fileName), m_filesystemHandlers, m_templateWCache);
 }

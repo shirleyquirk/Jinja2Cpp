@@ -977,7 +977,7 @@ struct ValueConverterImpl : visitors::BaseVisitor<>
     }
 
     template<typename CharT>
-    InternalValue operator()(const nonstd::basic_string_view<CharT>& val) const
+    InternalValue operator()(const std::basic_string_view<CharT>& val) const
     {
         InternalValue result;
         switch (m_params.mode)

@@ -28,7 +28,7 @@ struct MultiStringLiteral
         return GetValueStr<CharT>();
 #else
         constexpr auto memPtr = SelectMemberPtr<CharT, &MultiStringLiteral::charValue, &MultiStringLiteral::wcharValue>::GetPtr();
-        return nonstd::basic_string_view<CharT>(this->*memPtr);
+        return std::basic_string_view<CharT>(this->*memPtr);
 #endif
     }
 

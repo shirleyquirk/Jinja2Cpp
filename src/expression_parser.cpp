@@ -559,7 +559,7 @@ ExpressionParser::ParseResult<ExpressionEvaluatorPtr<ExpressionFilter>> Expressi
     }
     catch (const ParseError& error)
     {
-        return nonstd::make_unexpected(error);
+        return std::make_unexpected(error);
     }
     catch (const std::runtime_error&)
     {
@@ -593,7 +593,7 @@ ExpressionParser::ParseResult<ExpressionEvaluatorPtr<IfExpression>> ExpressionPa
     }
     catch (const ParseError& error)
     {
-        return nonstd::make_unexpected(error);
+        return std::make_unexpected(error);
     }
     catch (const std::runtime_error& ex)
     {

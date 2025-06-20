@@ -525,7 +525,7 @@ StatementsParser::ParseResult StatementsParser::ParseMacro(LexScanner& lexer, St
     return ParseResult();
 }
 
-nonstd::expected<MacroParams, ParseError> StatementsParser::ParseMacroParams(LexScanner& lexer)
+std::expected<MacroParams, ParseError> StatementsParser::ParseMacroParams(LexScanner& lexer)
 {
     MacroParams items;
 

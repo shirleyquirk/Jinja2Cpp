@@ -218,7 +218,7 @@ using StatementInfoList = std::list<StatementInfo>;
 class StatementsParser
 {
 public:
-    using ParseResult = nonstd::expected<void, ParseError>;
+    using ParseResult = std::expected<void, ParseError>;
 
     StatementsParser(const Settings& settings, TemplateEnv* env)
         : m_settings(settings)
@@ -241,7 +241,7 @@ private:
     ParseResult ParseEndBlock(LexScanner& lexer, StatementInfoList& statementsInfo, const Token& stmtTok);
     ParseResult ParseExtends(LexScanner& lexer, StatementInfoList& statementsInfo, const Token& stmtTok);
     ParseResult ParseMacro(LexScanner& lexer, StatementInfoList& statementsInfo, const Token& stmtTok);
-    nonstd::expected<MacroParams, ParseError> ParseMacroParams(LexScanner& lexer);
+    std::expected<MacroParams, ParseError> ParseMacroParams(LexScanner& lexer);
     ParseResult ParseEndMacro(LexScanner& lexer, StatementInfoList& statementsInfo, const Token& stmtTok);
     ParseResult ParseCall(LexScanner& lexer, StatementInfoList& statementsInfo, const Token& stmtTok);
     ParseResult ParseEndCall(LexScanner& lexer, StatementInfoList& statementsInfo, const Token& stmtTok);
@@ -267,7 +267,7 @@ public:
     using traits_t = ParserTraits<CharT>;
     using sregex_iterator = RegexIterator<typename string_t::const_iterator>;
     using ErrorInfo = ErrorInfoTpl<CharT>;
-    using ParseResult = nonstd::expected<RendererPtr, std::vector<ErrorInfo>>;
+    using ParseResult = std::expected<RendererPtr, std::vector<ErrorInfo>>;
 
     TemplateParser(const string_t* tpl, const Settings& setts, TemplateEnv* env, std::string tplName)
         : m_template(tpl)
@@ -337,7 +337,7 @@ private:
         TextBlockType type;
     };
 
-    nonstd::expected<void, std::vector<ParseError>> DoRoughParsing()
+    std::expected<void, std::vector<ParseError>> DoRoughParsing()
     {
         std::vector<ParseError> foundErrors;
 
@@ -352,7 +352,7 @@ private:
             m_lines.push_back(LineInfo{ range, 0 });
             m_textBlocks.push_back(
               TextBlockInfo{ range, (!m_template->empty() && m_template->front() == '#') ? TextBlockType::LineStatement : TextBlockType::RawText });
-            return nonstd::expected<void, std::vector<ParseError>>();
+            return std::expected<void, std::vector<ParseError>>();
         }
 
         m_currentBlockInfo.range.startOffset = 0;
@@ -369,33 +369,33 @@ private:
             if (!result)
             {
                 foundErrors.push_back(result.error());
-                return nonstd::make_unexpected(std::move(foundErrors));
+                return std::make_unexpected(std::move(foundErrors));
             }
         } while (matchBegin != matchEnd);
         FinishCurrentLine(m_template->size());
 
         if (m_currentBlockInfo.type == TextBlockType::RawBlock)
         {
-            nonstd::expected<void, ParseError> result =
+            std::expected<void, ParseError> result =
               MakeParseError(ErrorCode::ExpectedRawEnd, MakeToken(Token::RawEnd, { m_template->size(), m_template->size() }));
             foundErrors.push_back(result.error());
-            return nonstd::make_unexpected(std::move(foundErrors));
+            return std::make_unexpected(std::move(foundErrors));
         }
         else if (m_currentBlockInfo.type == TextBlockType::MetaBlock)
         {
-            nonstd::expected<void, ParseError> result =
+            std::expected<void, ParseError> result =
               MakeParseError(ErrorCode::ExpectedMetaEnd, MakeToken(Token::RawEnd, { m_template->size(), m_template->size() }));
             foundErrors.push_back(result.error());
-            return nonstd::make_unexpected(std::move(foundErrors));
+            return std::make_unexpected(std::move(foundErrors));
         }
 
         FinishCurrentBlock(m_template->size(), TextBlockType::RawText);
 
         if (!foundErrors.empty())
-            return nonstd::make_unexpected(std::move(foundErrors));
-        return nonstd::expected<void, std::vector<ParseError>>();
+            return std::make_unexpected(std::move(foundErrors));
+        return std::expected<void, std::vector<ParseError>>();
     }
-    nonstd::expected<void, ParseError> ParseRoughMatch(sregex_iterator& curMatch, const sregex_iterator& /*endMatch*/)
+    std::expected<void, ParseError> ParseRoughMatch(sregex_iterator& curMatch, const sregex_iterator& /*endMatch*/)
     {
         auto match = *curMatch;
         ++curMatch;
@@ -531,7 +531,7 @@ private:
                 break;
         }
 
-        return nonstd::expected<void, ParseError>();
+        return std::expected<void, ParseError>();
     }
 
     void StartControlBlock(TextBlockType blockType, size_t matchStart, size_t startOffset = 0)
@@ -630,7 +630,7 @@ private:
         return endOffset;
     }
 
-    nonstd::expected<void, std::vector<ParseError>> DoFineParsing(std::shared_ptr<ComposedRenderer> renderers)
+    std::expected<void, std::vector<ParseError>> DoFineParsing(std::shared_ptr<ComposedRenderer> renderers)
     {
         std::vector<ParseError> errors;
         StatementInfoList statementsStack;
@@ -659,7 +659,7 @@ private:
                     auto range = block.range;
                     if (range.size() == 0)
                         break;
-                    auto metadata = nonstd::basic_string_view<CharT>(m_template->data() + range.startOffset, range.size());
+                    auto metadata = std::basic_string_view<CharT>(m_template->data() + range.startOffset, range.size());
                     if (!boost::algorithm::all(metadata, boost::algorithm::is_space()))
                         m_metadata = metadata;
                     break;
@@ -687,12 +687,12 @@ private:
         }
 
         if (!errors.empty())
-            return nonstd::make_unexpected(std::move(errors));
+            return std::make_unexpected(std::move(errors));
 
-        return nonstd::expected<void, std::vector<ParseError>>();
+        return std::expected<void, std::vector<ParseError>>();
     }
     template<typename R, typename P, typename... Args>
-    nonstd::expected<R, ParseError> InvokeParser(const TextBlockInfo& block, Args&&... args)
+    std::expected<R, ParseError> InvokeParser(const TextBlockInfo& block, Args&&... args)
     {
         lexertk::generator<CharT> tokenizer;
         auto range = block.range;
@@ -721,7 +721,7 @@ private:
         return result;
     }
 
-    nonstd::unexpected_type<std::vector<ErrorInfo>> ParseErrorsToErrorInfo(const std::vector<ParseError>& errors)
+    std::unexpected_type<std::vector<ErrorInfo>> ParseErrorsToErrorInfo(const std::vector<ParseError>& errors)
     {
         std::vector<ErrorInfo> resultErrors;
 
@@ -748,7 +748,7 @@ private:
             resultErrors.emplace_back(errInfoData);
         }
 
-        return nonstd::make_unexpected(std::move(resultErrors));
+        return std::make_unexpected(std::move(resultErrors));
     }
 
     Token MakeToken(Token::Type type, const CharRange& range, string_t value = string_t())
@@ -949,7 +949,7 @@ private:
     LineInfo m_currentLineInfo = {};
     TextBlockInfo m_currentBlockInfo = {};
     bool m_hasMetaBlock = false;
-    nonstd::basic_string_view<CharT> m_metadata;
+    std::basic_string_view<CharT> m_metadata;
     std::string m_metadataType;
     SourceLocation m_metadataLocation;
 };

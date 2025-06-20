@@ -15,7 +15,7 @@ class ExpressionParser
 {
 public:
     template<typename T>
-    using ParseResult = nonstd::expected<T, ParseError>;
+    using ParseResult = std::expected<T, ParseError>;
 
     explicit ExpressionParser(const Settings& settings, TemplateEnv* env = nullptr);
     ParseResult<RendererPtr> Parse(LexScanner& lexer);
