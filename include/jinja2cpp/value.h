@@ -5,9 +5,9 @@
 #include <jinja2cpp/utils/i_comparable.h>
 #include <jinja2cpp/value_ptr.h>
 
-#include <nonstd/variant.hpp>
-#include <nonstd/optional.hpp>
-#include <nonstd/string_view.hpp>
+#include <variant>
+#include <optional>
+#include <string_view>
 
 #include <atomic>
 #include <vector>

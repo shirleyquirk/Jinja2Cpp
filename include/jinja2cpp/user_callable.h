@@ -4,7 +4,7 @@
 #include "string_helpers.h"
 #include "value.h"
 
-#include <nonstd/optional.hpp>
+#include <optional>
 
 #include <stdexcept>
 #include <tuple>

@@ -1,7 +1,7 @@
 #ifndef JINJA2CPP_SRC_HELPERS_H
 #define JINJA2CPP_SRC_HELPERS_H
 
-#include <nonstd/string_view.hpp>
+#include <string_view>
 #include <jinja2cpp/string_helpers.h>
 
 #include <string>

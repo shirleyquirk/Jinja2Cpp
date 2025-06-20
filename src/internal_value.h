@@ -17,8 +17,8 @@
 #endif
 
 
-#include <nonstd/string_view.hpp>
-#include <nonstd/variant.hpp>
+#include <string_view>
+#include <variant>
 
 #include <functional>
 

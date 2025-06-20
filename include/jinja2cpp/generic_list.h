@@ -4,7 +4,7 @@
 #include <jinja2cpp/utils/i_comparable.h>
 #include <jinja2cpp/value_ptr.h>
 
-#include <nonstd/optional.hpp>
+#include <optional>
 
 #include <functional>
 #include <iterator>

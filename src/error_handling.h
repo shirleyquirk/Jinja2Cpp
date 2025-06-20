@@ -3,7 +3,7 @@
 
 #include "lexer.h"
 #include <jinja2cpp/error_info.h>
-#include <nonstd/expected.hpp>
+#include <expected>
 
 #include <initializer_list>
 #include <vector>

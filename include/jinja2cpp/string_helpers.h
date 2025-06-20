@@ -3,7 +3,7 @@
 
 #include "value.h"
 
-#include <nonstd/string_view.hpp>
+#include <string_view>
 
 #include <cwchar>
 #include <string>

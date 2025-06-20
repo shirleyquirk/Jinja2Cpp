@@ -5,8 +5,8 @@
 
 #include <jinja2cpp/utils/i_comparable.h>
 
-#include <nonstd/optional.hpp>
-#include <nonstd/variant.hpp>
+#include <optional>
+#include <variant>
 
 #include <chrono>
 #include <iostream>

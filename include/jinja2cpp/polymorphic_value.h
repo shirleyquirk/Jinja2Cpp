@@ -32,7 +32,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <utility>
 
 // required variant_CPP17_OR_GREATER definition
-#include <nonstd/variant.hpp>
+#include <variant>
 
 //
 // in_place: code duplicated in any-lite, expected-lite, optional-lite, value-ptr-lite, variant-lite:

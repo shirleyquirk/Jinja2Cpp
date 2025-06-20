@@ -11,7 +11,7 @@
 
 #include <boost/optional.hpp>
 #include <boost/predef/other/endian.h>
-#include <nonstd/expected.hpp>
+#include <expected>
 #include <rapidjson/error/en.h>
 
 #include <string>

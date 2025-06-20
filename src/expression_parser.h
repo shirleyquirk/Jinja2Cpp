@@ -6,7 +6,7 @@
 #include "expression_evaluator.h"
 #include "renderer.h"
 
-#include <nonstd/expected.hpp>
+#include <expected>
 #include <jinja2cpp/template_env.h>
 
 namespace jinja2
