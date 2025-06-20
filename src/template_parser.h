@@ -716,12 +716,12 @@ private:
         LexScanner scanner(lexer);
         auto result = praser.Parse(scanner, std::forward<Args>(args)...);
         if (!result)
-            return result.get_unexpected();
+            return std::unexpected{result.error()};
 
         return result;
     }
 
-    std::unexpected_type<std::vector<ErrorInfo>> ParseErrorsToErrorInfo(const std::vector<ParseError>& errors)
+    std::unexpected<std::vector<ErrorInfo>> ParseErrorsToErrorInfo(const std::vector<ParseError>& errors)
     {
         std::vector<ErrorInfo> resultErrors;
 
