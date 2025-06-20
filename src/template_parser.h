@@ -369,7 +369,7 @@ private:
             if (!result)
             {
                 foundErrors.push_back(result.error());
-                return std::make_unexpected(std::move(foundErrors));
+                return std::unexpected(std::move(foundErrors));
             }
         } while (matchBegin != matchEnd);
         FinishCurrentLine(m_template->size());
@@ -379,20 +379,20 @@ private:
             std::expected<void, ParseError> result =
               MakeParseError(ErrorCode::ExpectedRawEnd, MakeToken(Token::RawEnd, { m_template->size(), m_template->size() }));
             foundErrors.push_back(result.error());
-            return std::make_unexpected(std::move(foundErrors));
+            return std::unexpected(std::move(foundErrors));
         }
         else if (m_currentBlockInfo.type == TextBlockType::MetaBlock)
         {
             std::expected<void, ParseError> result =
               MakeParseError(ErrorCode::ExpectedMetaEnd, MakeToken(Token::RawEnd, { m_template->size(), m_template->size() }));
             foundErrors.push_back(result.error());
-            return std::make_unexpected(std::move(foundErrors));
+            return std::unexpected(std::move(foundErrors));
         }
 
         FinishCurrentBlock(m_template->size(), TextBlockType::RawText);
 
         if (!foundErrors.empty())
-            return std::make_unexpected(std::move(foundErrors));
+            return std::unexpected(std::move(foundErrors));
         return std::expected<void, std::vector<ParseError>>();
     }
     std::expected<void, ParseError> ParseRoughMatch(sregex_iterator& curMatch, const sregex_iterator& /*endMatch*/)
@@ -687,7 +687,7 @@ private:
         }
 
         if (!errors.empty())
-            return std::make_unexpected(std::move(errors));
+            return std::unexpected(std::move(errors));
 
         return std::expected<void, std::vector<ParseError>>();
     }
@@ -748,7 +748,7 @@ private:
             resultErrors.emplace_back(errInfoData);
         }
 
-        return std::make_unexpected(std::move(resultErrors));
+        return std::unexpected(std::move(resultErrors));
     }
 
     Token MakeToken(Token::Type type, const CharRange& range, string_t value = string_t())

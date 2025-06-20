@@ -336,7 +336,7 @@ public:
             errorData.srcLoc.line = 1;
             errorData.srcLoc.fileName = m_templateName;
             errorData.extraParams.push_back(IntValue2Value(fileName));
-            return TplOrError(std::make_unexpected(ErrorInfoTpl<CharT>(errorData)));
+            return TplOrError(std::unexpected(ErrorInfoTpl<CharT>(errorData)));
         }
 
         return LoadTemplate(name.value());
@@ -359,7 +359,7 @@ public:
                 errorData.srcLoc = m_metadataInfo.location;
                 std::string jsonError = rapidjson::GetParseError_En(res.Code());
                 errorData.extraParams.push_back(Value(std::move(jsonError)));
-                return std::make_unexpected(ErrorInfoTpl<CharT>(errorData));
+                return std::unexpected(ErrorInfoTpl<CharT>(errorData));
             }
             m_metadata = std::move(std::get<GenericMap>(Reflect(m_metadataJson.value()).data()));
             return m_metadata.value();

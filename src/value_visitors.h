@@ -1070,22 +1070,22 @@ struct SameStringGetter : public visitors::BaseVisitor<std::expected<void, std::
 
     Result operator()(const ResultString& str) const
     {
-        return std::make_unexpected(str);
+        return std::unexpected(str);
     }
 
     Result operator()(const ResultStringView& str) const
     {
-        return std::make_unexpected(ResultString(str.begin(), str.end()));
+        return std::unexpected(ResultString(str.begin(), str.end()));
     }
 
     Result operator()(const OtherString& str) const
     {
-        return std::make_unexpected(ConvertString<ResultString>(str));
+        return std::unexpected(ConvertString<ResultString>(str));
     }
 
     Result operator()(const OtherStringView& str) const
     {
-        return std::make_unexpected(ConvertString<ResultString>(str));
+        return std::unexpected(ConvertString<ResultString>(str));
     }
 };
 

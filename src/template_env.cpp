@@ -79,7 +79,7 @@ auto TemplateEnv::LoadTemplateImpl(TemplateEnv* env, std::string fileName, const
     errorData.srcLoc.fileName = "";
     errorData.extraParams.push_back(Value(fileName));
 
-    return ResultType(std::make_unexpected(ErrorType(errorData)));
+    return ResultType(std::unexpected(ErrorType(errorData)));
 }
 
 std::expected<Template, ErrorInfo> TemplateEnv::LoadTemplate(std::string fileName)
