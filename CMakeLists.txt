@@ -282,24 +282,6 @@ endif ()
 set (JINJA2CPP_INSTALL_CONFIG_DIR "${CMAKE_INSTALL_LIBDIR}/${LIB_TARGET_NAME}")
 set (JINJA2CPP_TMP_CONFIG_PATH "cmake/config")
 
-
-macro (Jinja2CppGetTargetIncludeDir infix target)
-    message (STATUS "infix: ${infix} target: ${target}")
-
-    if (TARGET ${target})
-        set (_J2CPP_VAR_NAME JINJA2CPP_${infix}_INCLUDE_DIRECTORIES)
-        get_target_property(${_J2CPP_VAR_NAME} ${target} INTERFACE_INCLUDE_DIRECTORIES)
-    else ()
-        message(WARNING "No target: ${target}")
-    endif()
-
-endmacro ()
-
-Jinja2CppGetTargetIncludeDir(EXPECTED-LITE nonstd::expected-lite)
-Jinja2CppGetTargetIncludeDir(VARIANT-LITE nonstd::variant-lite)
-Jinja2CppGetTargetIncludeDir(OPTIONAL-LITE nonstd::optional-lite)
-Jinja2CppGetTargetIncludeDir(STRING-VIEW-LITE nonstd::string-view-lite)
-
 # Workaround for #14444 bug of CMake (https://gitlab.kitware.com/cmake/cmake/issues/14444)
 # We can't use EXPORT feature of 'install' as is due to limitation of subproject's targets installation
 # So jinja2cpp-config.cmake should be written manually
