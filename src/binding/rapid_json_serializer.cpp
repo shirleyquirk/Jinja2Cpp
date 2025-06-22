@@ -58,18 +58,6 @@ struct JsonInserter : visitors::BaseVisitor<rapidjson::Value>
         return rapidjson::Value(str.data(), static_cast<rapidjson::SizeType>(str.size()), m_allocator);
     }
 
-    rapidjson::Value operator()(const std::wstring& str) const
-    {
-        auto s = ConvertString<std::string>(str);
-        return rapidjson::Value(s.c_str(), m_allocator);
-    }
-
-    rapidjson::Value operator()(const std::wstring_view& str) const
-    {
-        auto s = ConvertString<std::string>(str);
-        return rapidjson::Value(s.c_str(), m_allocator);
-    }
-
     rapidjson::Value operator()(bool val) const { return rapidjson::Value(val); }
 
     rapidjson::Value operator()(EmptyValue) const { return rapidjson::Value(); }

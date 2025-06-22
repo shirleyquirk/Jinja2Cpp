@@ -20,12 +20,12 @@ struct IRendererCallback : IComparable
     virtual ~IRendererCallback() {}
     virtual TargetString GetAsTargetString(const InternalValue& val) = 0;
     virtual OutStream GetStreamOnString(TargetString& str) = 0;
+    // TODO(bwsq) this was a variant to support wide char templates
+    // now surely it could be just expected (with a default ErrorInfo?) or optional<expected> or...
     virtual std::variant<EmptyValue,
-        std::expected<std::shared_ptr<TemplateImpl<char>>, ErrorInfo>,
-        std::expected<std::shared_ptr<TemplateImpl<wchar_t>>, ErrorInfoW>> LoadTemplate(const std::string& fileName) const = 0;
+        std::expected<std::shared_ptr<TemplateImpl<char>>, ErrorInfo>> LoadTemplate(const std::string& fileName) const = 0;
     virtual std::variant<EmptyValue,
-        std::expected<std::shared_ptr<TemplateImpl<char>>, ErrorInfo>,
-        std::expected<std::shared_ptr<TemplateImpl<wchar_t>>, ErrorInfoW>> LoadTemplate(const InternalValue& fileName) const = 0;
+        std::expected<std::shared_ptr<TemplateImpl<char>>, ErrorInfo>> LoadTemplate(const InternalValue& fileName) const = 0;
     virtual void ThrowRuntimeError(ErrorCode code, ValuesList extraParams) = 0;
 };
 

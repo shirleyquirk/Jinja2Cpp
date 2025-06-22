@@ -523,11 +523,6 @@ void IncludeStatement::Render(OutStream& os, RenderContext& values)
             if (err.GetCode() != ErrorCode::FileNotFound)
                 throw;
         }
-        catch (const ErrorInfoTpl<wchar_t>& err)
-        {
-            if (err.GetCode() != ErrorCode::FileNotFound)
-                throw;
-        }
 
         return false;
     };

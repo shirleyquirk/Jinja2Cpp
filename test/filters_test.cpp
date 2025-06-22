@@ -35,16 +35,13 @@ TEST_P(FilterGroupByTest, Test)
     {
         TestStruct s;
         std::ostringstream str;
-        std::wostringstream wstr;
 
         str << "test string " << n / 2;
-        wstr << L"test string " << n;
 
         s.intValue = n / 2;
         s.dblValue = static_cast<double>(n / 2) / 2;
         s.boolValue = n % 2 == 1;
         s.strValue = str.str();
-        s.wstrValue = wstr.str();
 
         testData.push_back(jinja2::Reflect(std::move(s)));
     }
@@ -381,7 +378,7 @@ INSTANTIATE_TEST_SUITE_P(DictSort, FilterGenericTest, ::testing::Values(
       "{'strValue': 'Hello World!'}, {'strValue': 'Hello World!'}], 'intEvenValue': 0, 'intValue': 0, 'strValue': 'test string 0', 'strViewValue': 'test "
       "string 0', 'tmpStructList': [{'strValue': 'Hello World!'}, {'strValue': 'Hello World!'}, {'strValue': 'Hello World!'}, {'strValue': 'Hello World!'}, "
       "{'strValue': 'Hello World!'}, {'strValue': 'Hello World!'}, {'strValue': 'Hello World!'}, {'strValue': 'Hello World!'}, {'strValue': 'Hello World!'}, "
-      "{'strValue': 'Hello World!'}], 'wstrValue': 'test string 0', 'wstrViewValue': 'test string 0']" }));
+      "{'strValue': 'Hello World!'}]]" }));
 
 INSTANTIATE_TEST_SUITE_P(UrlEncode, FilterGenericTest, ::testing::Values(
                             InputOutputPair{"'Hello World' | urlencode", "Hello+World"},
@@ -534,7 +531,6 @@ INSTANTIATE_TEST_SUITE_P(Format, FilterGenericTest, ::testing::Values(
                             InputOutputPair{"'{}' | format([1, 'a'])", "[1, 'a']"},
                             InputOutputPair{"'{}' | format({'a'=1})", "{'a': 1}"},
                             InputOutputPair{"'{}' | format(stringValue)","rain"},
-                            InputOutputPair{"'{}' | format(wstringValue)", "  hello world "},
                             InputOutputPair{"'{:07d}' | format(1024) | pprint", "'0001024'"},
                             InputOutputPair{"'{0:.2f}' | format(13.949999988079071) | pprint", "'13.95'"},
                             InputOutputPair{"'{0:.15f}' | format(13.949999988079071) | pprint", "'13.949999988079071'"},
@@ -588,7 +584,7 @@ struct XmlAttr : ::testing::Test
         using RegexTokenIterator = std::regex_token_iterator<typename String::const_iterator>;
          
         AttributeSet<CharT> result;
-        const Regex pattern(ConvertString<String>(std::string("(\\S+=[\"].*?[\"])")));
+        const Regex pattern(std::string("(\\S+=[\"].*?[\"])"));
         std::copy(RegexTokenIterator(attributeString.begin(), attributeString.end(), pattern, 0),
                   RegexTokenIterator(),
                   std::inserter(result, result.begin()));
@@ -612,7 +608,6 @@ struct XmlAttr : ::testing::Test
     void PerformBothXmlAttrTests(const std::string& source, const std::string& expectedResult, const jinja2::ValuesMap& params)
     {
         PerformXmlAttrTest<Template>(source, expectedResult, params);
-        PerformXmlAttrTest<TemplateW>(ConvertString<std::wstring>(source), ConvertString<std::wstring>(expectedResult), params);
     }
 
     template<typename TemplateType, typename StringType>
@@ -628,7 +623,6 @@ struct XmlAttr : ::testing::Test
     void PerformNegativeTest(const std::string& source, const jinja2::ValuesMap& params = {})
     {
         EXPECT_FALSE(ParseTemplate<Template>(source));
-        EXPECT_FALSE(ParseTemplate<TemplateW>(ConvertString<std::wstring>(source)));   
     }
 };
 
@@ -673,7 +667,6 @@ TEST_F(XmlAttr, FilterCanBeAppliedToMapOnly)
 struct TestValues
 {
     std::string strValue;
-    std::wstring wstrValue;
 };
 
 namespace jinja2
@@ -687,10 +680,6 @@ struct TypeReflection<TestValues> : TypeReflected<TestValues>
             { "str_view",
               [](const TestValues& obj) {
                   return jinja2::Reflect(std::string_view(obj.strValue));
-              } },
-            { "wstr_view",
-              [](const TestValues& obj) {
-                  return jinja2::Reflect(std::wstring_view(obj.wstrValue));
               } },
             { "callable",
               [](const TestValues& obj) {
@@ -713,9 +702,9 @@ struct TypeReflection<TestValues> : TypeReflected<TestValues>
 TEST_F(XmlAttr, SerializeMapWithStringViewsAndNoneSerializebleValues)
 {
     constexpr auto source = "{{ obj|xmlattr }}";
-    constexpr auto expectedResult = "str_view=\"string\" wstr_view=\"wstring\"";
+    constexpr auto expectedResult = "str_view=\"string\"";
 
-    TestValues testValues {"string", L"wstring"};
+    TestValues testValues {"string"};
     ValuesMap params{ { "obj",  jinja2::Reflect(testValues)  }};
 
     PerformBothXmlAttrTests(source, expectedResult, params);

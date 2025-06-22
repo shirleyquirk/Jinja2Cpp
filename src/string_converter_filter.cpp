@@ -352,17 +352,17 @@ InternalValue StringConverter::Filter(const InternalValue& baseVal, RenderContex
             auto str = sv_to_string(srcStr);
             using StringT = decltype(str);
             using CharT = typename StringT::value_type;
-            static const std::basic_regex<CharT> STRIPTAGS_RE(UNIVERSAL_STR("(<!--.*?-->|<[^>]*>)").GetValueStr<CharT>());
-            str = std::regex_replace(str, STRIPTAGS_RE, UNIVERSAL_STR("").GetValueStr<CharT>());
+            static const std::basic_regex<CharT> STRIPTAGS_RE("(<!--.*?-->|<[^>]*>)");
+            str = std::regex_replace(str, STRIPTAGS_RE, "");
             ba::trim_all(str);
             static const StringT html_entities [] {
-                UNIVERSAL_STR("&amp;").GetValueStr<CharT>(), UNIVERSAL_STR("&").GetValueStr<CharT>(),
-                UNIVERSAL_STR("&apos;").GetValueStr<CharT>(), UNIVERSAL_STR("\'").GetValueStr<CharT>(),
-                UNIVERSAL_STR("&gt;").GetValueStr<CharT>(), UNIVERSAL_STR(">").GetValueStr<CharT>(),
-                UNIVERSAL_STR("&lt;").GetValueStr<CharT>(), UNIVERSAL_STR("<").GetValueStr<CharT>(),
-                UNIVERSAL_STR("&quot;").GetValueStr<CharT>(), UNIVERSAL_STR("\"").GetValueStr<CharT>(),
-                UNIVERSAL_STR("&#39;").GetValueStr<CharT>(), UNIVERSAL_STR("\'").GetValueStr<CharT>(),
-                UNIVERSAL_STR("&#34;").GetValueStr<CharT>(), UNIVERSAL_STR("\"").GetValueStr<CharT>(),
+                "&amp;", "&",
+                "&apos;", "\'",
+                "&gt;", ">",
+                "&lt;", "<",
+                "&quot;", "\"",
+                "&#39;", "\'",
+                "&#34;", "\"",
             };
             for (auto it = std::begin(html_entities), end = std::end(html_entities); it < end; it += 2)
             {

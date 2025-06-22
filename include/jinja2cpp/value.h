@@ -179,9 +179,7 @@ using RecWrapper = types::ValuePtr<T>;
  *  - EmptyValue. In this case instance of this class threated as 'empty'
  *  - Boolean value.
  *  - String value.
- *  - Wide string value
  *  - String view value (std::string_view)
- *  - Wide string view value (std::wstring_view)
  *  - integer (int64_t) value
  *  - floating point (double) value
  *  - Simple list of other values (\ref ValuesList)
@@ -192,7 +190,7 @@ using RecWrapper = types::ValuePtr<T>;
  *
  *  Exact value can be accessed via std::visit method applied to the result of the Value::data() call or any of
  *  asXXX method (ex. \ref Value::asString). In case of string retrieval it's better to use \ref AsString or \ref
- *  AsWString functions. Thay hide all nececcary transformations between various types of strings (or string views).
+ *  functions. Thay hide all nececcary transformations between various types of strings (or string views).
  */
 class Value
 {
@@ -201,9 +199,7 @@ public:
         EmptyValue,
         bool,
         std::string,
-        std::wstring,
         std::string_view,
-        std::wstring_view,
         int64_t,
         double,
         RecWrapper<ValuesList>,
@@ -256,15 +252,6 @@ public:
     {
     }
     /*!
-     * \brief Initializing constructor from pointer to the null-terminated wide string
-     *
-     * @param val Null-terminated string which should be used to initialize \ref Value instance
-     */
-    Value(const wchar_t* val)
-        : m_data(std::wstring(val))
-    {
-    }
-    /*!
      * \brief Initializing constructor from the narrow string literal
      *
      * @param val String literal which should be used to initialize \ref Value instance
@@ -272,16 +259,6 @@ public:
     template<size_t N>
     Value(char (&val)[N])
         : m_data(std::string(val))
-    {
-    }
-    /*!
-     * \brief Initializing constructor from the wide string literal
-     *
-     * @param val String literal which should be used to initialize \ref Value instance
-     */
-    template<size_t N>
-    Value(wchar_t (&val)[N])
-        : m_data(std::wstring(val))
     {
     }
     /*!
@@ -385,34 +362,6 @@ public:
     auto& asString() const
     {
         return std::get<std::string>(m_data);
-    }
-
-    //! Test Value for containing std::wstring object
-    bool isWString() const
-    {
-        return std::get_if<std::wstring>(&m_data) != nullptr;
-    }
-    /*!
-     * \brief Returns mutable containing std::wstring object
-     *
-     * Returns containing std::wstring object. Appropriate exception is thrown in case of non-wstring containing value
-     *
-     * @return Mutable containing std::wstring object
-     */
-    auto& asWString()
-    {
-        return std::get<std::wstring>(m_data);
-    }
-    /*!
-     * \brief Returns non-mutable containing std::wstring object
-     *
-     * Returns containing std::wstring object. Appropriate exception is thrown in case of non-wstring containing value
-     *
-     * @return Non-mutable containing std::wstring object
-     */
-    auto& asWString() const
-    {
-        return std::get<std::wstring>(m_data);
     }
 
     //! Test Value for containing jinja2::ValuesList object
@@ -616,7 +565,6 @@ struct ArgInfoT : public ArgInfo
  *      if (str1.isString())
  *          return str1.asString() + " " + str2.asString();
  *
- *      return str1.asWString() + L" " + str2.asWString();
  *  };
  *  uc.argsInfo = {{"str1", true}, {"str2", true}};
  *  params["test"] = std::move(uc);

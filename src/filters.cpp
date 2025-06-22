@@ -914,26 +914,10 @@ struct ValueConverterImpl : visitors::BaseVisitor<>
         return dblVal;
     }
 
-    static double ConvertToDouble(const wchar_t* buff, bool& isConverted)
-    {
-        wchar_t* endBuff = nullptr;
-        double dblVal = wcstod(buff, &endBuff);
-        isConverted = *endBuff == 0;
-        return dblVal;
-    }
-
     static long long ConvertToInt(const char* buff, int base, bool& isConverted)
     {
         char* endBuff = nullptr;
         long long intVal = strtoll(buff, &endBuff, base);
-        isConverted = *endBuff == 0;
-        return intVal;
-    }
-
-    static long long ConvertToInt(const wchar_t* buff, int base, bool& isConverted)
-    {
-        wchar_t* endBuff = nullptr;
-        long long intVal = wcstoll(buff, &endBuff, base);
         isConverted = *endBuff == 0;
         return intVal;
     }

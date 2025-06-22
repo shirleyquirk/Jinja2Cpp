@@ -57,18 +57,6 @@ struct JsonInserter : visitors::BaseVisitor<boost::json::value>
         return boost::json::value(boost::json::string(str.data(), str.size()));
     }
 
-    boost::json::value operator()(const std::wstring& str) const
-    {
-        auto s = ConvertString<std::string>(str);
-        return boost::json::value(s.c_str());
-    }
-
-    boost::json::value operator()(const std::wstring_view& str) const
-    {
-        auto s = ConvertString<std::string>(str);
-        return boost::json::value(s.c_str());
-    }
-
     boost::json::value operator()(bool val) const { return boost::json::value(val); }
 
     boost::json::value operator()(EmptyValue) const { return boost::json::value(); }

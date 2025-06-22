@@ -1,5 +1,7 @@
+// TODO(bwsq) simplify
+// you know, this is a bunch of crap built on crap
+// fuck istream and fuck sstream and fuck this.
 #include <jinja2cpp/filesystem_handler.h>
-#include <jinja2cpp/string_helpers.h>
 
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
@@ -10,44 +12,24 @@
 namespace jinja2
 {
 
-using TargetFileStream = std::variant<CharFileStreamPtr*, WCharFileStreamPtr*>;
-
 struct FileContentConverter
 {
     void operator() (const std::string& content, CharFileStreamPtr* sPtr) const
     {
         sPtr->reset(new std::istringstream(content));
     }
-
-    void operator() (const std::wstring& content, WCharFileStreamPtr* sPtr) const
-    {
-        sPtr->reset(new std::wistringstream(content));
-    }
-    void operator() (const std::wstring&, CharFileStreamPtr*) const
-    {
-//        CharFileStreamPtr stream(new std::istringstream(content), [](std::istream* s) {delete static_cast<std::istringstream>(s);});
-//        std::swap(*sPtr, stream);
-    }
-
-    void operator() (const std::string&, WCharFileStreamPtr*) const
-    {
-//        WCharFileStreamPtr stream(new std::wistringstream(content), [](std::wistream* s) {delete static_cast<std::wistringstream>(s);});
-//        std::swap(*sPtr, stream);
-    }
 };
 
 void MemoryFileSystem::AddFile(std::string fileName, std::string fileContent)
 {
-    m_filesMap[std::move(fileName)] = FileContent{std::move(fileContent), {}};
-}
-
-void MemoryFileSystem::AddFile(std::string fileName, std::wstring fileContent)
-{
-    m_filesMap[std::move(fileName)] = FileContent{ {}, std::move(fileContent) };
+    m_filesMap[std::move(fileName)] = FileContent{std::move(fileContent)};
 }
 
 CharFileStreamPtr MemoryFileSystem::OpenStream(const std::string& name) const
 {
+    // WHAT THE FUCK IS THIS WHY
+    // surely this cant be the right way of doing things
+    // TODO(bwsq) grep for every static_cast, new, and delete in this project
     CharFileStreamPtr result(nullptr, [](std::istream* s) {delete static_cast<std::istringstream*>(s);});
     auto p = m_filesMap.find(name);
     if (p == m_filesMap.end())
@@ -55,36 +37,14 @@ CharFileStreamPtr MemoryFileSystem::OpenStream(const std::string& name) const
 
     auto& content = p->second;
 
-    if (!content.narrowContent && !content.wideContent)
-        return result;
-
     if (!content.narrowContent)
-        content.narrowContent = ConvertString<std::string>(content.wideContent.value());
+        return result;
 
     result.reset(new std::istringstream(content.narrowContent.value()));
 
     return result;
 }
 
-WCharFileStreamPtr MemoryFileSystem::OpenWStream(const std::string& name) const
-{
-    WCharFileStreamPtr result(nullptr, [](std::wistream* s) {delete static_cast<std::wistringstream*>(s);});
-    auto p = m_filesMap.find(name);
-    if (p == m_filesMap.end())
-        return result;
-
-    auto& content = p->second;
-
-    if (!content.narrowContent && !content.wideContent)
-        return result;
-
-    if (!content.wideContent)
-        content.wideContent = ConvertString<std::wstring>(content.narrowContent.value());
-
-    result.reset(new std::wistringstream(content.wideContent.value()));
-
-    return result;
-}
 std::optional<std::chrono::system_clock::time_point> MemoryFileSystem::GetLastModificationDate(const std::string&) const
 {
     return std::optional<std::chrono::system_clock::time_point>();
@@ -122,16 +82,6 @@ CharFileStreamPtr RealFileSystem::OpenStream(const std::string& name) const
     return CharFileStreamPtr(nullptr, [](std::istream*){});
 }
 
-WCharFileStreamPtr RealFileSystem::OpenWStream(const std::string& name) const
-{
-    auto filePath = GetFullFilePath(name);
-
-    WCharFileStreamPtr result(new std::wifstream(filePath), [](std::wistream* s) {delete static_cast<std::wifstream*>(s);});
-    if (result->good())
-        return result;
-
-    return WCharFileStreamPtr(nullptr, [](std::wistream*){;});
-}
 std::optional<std::chrono::system_clock::time_point> RealFileSystem::GetLastModificationDate(const std::string& name) const
 {
     boost::filesystem::path root(m_rootFolder);

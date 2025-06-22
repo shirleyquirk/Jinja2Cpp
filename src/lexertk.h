@@ -182,33 +182,10 @@ namespace lexertk
       }
 
       template<>
-      inline bool lexer_traits<wchar_t>::is_operator_char(const wchar_t c)
-      {
-         return (L'+' == c) || (L'-' == c) ||
-                (L'*' == c) || (L'/' == c) ||
-                (L'^' == c) || (L'<' == c) ||
-                (L'>' == c) || (L'=' == c) ||
-                (L',' == c) || (L'!' == c) ||
-                (L'(' == c) || (L')' == c) ||
-                (L'[' == c) || (L']' == c) ||
-                (L'{' == c) || (L'}' == c) ||
-                (L'%' == c) || (L':' == c) ||
-                (L'?' == c) || (L'&' == c) ||
-                (L'|' == c) || (L';' == c) ||
-                (L'~' == c);
-      }
-
-      template<>
       inline bool lexer_traits<char>::is_left_bracket(const char c)
       {
          return ('(' == c) || ('[' == c) || ('{' == c);
       }
-      template<>
-      inline bool lexer_traits<wchar_t>::is_left_bracket(const wchar_t c)
-      {
-         return (L'(' == c) || (L'[' == c) || (L'{' == c);
-      }
-
       template<>
       inline bool lexer_traits<char>::is_right_bracket(const char c)
       {
@@ -216,21 +193,9 @@ namespace lexertk
       }
 
       template<>
-      inline bool lexer_traits<wchar_t>::is_right_bracket(const wchar_t c)
-      {
-         return (L')' == c) || (L']' == c) || (L'}' == c);
-      }
-
-      template<>
       inline bool lexer_traits<char>::is_sign(const char c)
       {
          return ('+' == c) || ('-' == c);
-      }
-
-      template<>
-      inline bool lexer_traits<wchar_t>::is_sign(const wchar_t c)
-      {
-         return (L'+' == c) || (L'-' == c);
       }
 
       template<>
@@ -245,20 +210,6 @@ namespace lexertk
                 ('$' != c)           &&
                 ('~' != c)           &&
                 ('\'' != c);
-      }
-
-      template<>
-      inline bool lexer_traits<wchar_t>::is_invalid(const wchar_t c)
-      {
-         return !is_whitespace(c)    &&
-                !is_operator_char(c) &&
-                !is_letter(c)        &&
-                !is_digit(c)         &&
-                (L'.' != c)           &&
-                (L'_' != c)           &&
-                (L'$' != c)           &&
-                (L'~' != c)           &&
-                (L'\'' != c);
       }
 
       template<typename CharT>

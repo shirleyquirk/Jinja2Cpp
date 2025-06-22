@@ -21,7 +21,6 @@ struct ToJson : ::testing::Test
         const ValuesMap object{ { "intValue", 3 },
                                 { "doubleValue", 12.123f },
                                 { "stringValue", "rain" },
-                                { "wstringValue", std::wstring(L"rain") },
                                 { "boolFalseValue", false },
                                 { "boolTrueValue", true },
                                 { "listValue", ValuesList{ 1, 2, 3 } },
@@ -52,7 +51,6 @@ struct ToJson : ::testing::Test
     void PerformBothJsonTests(const std::string& source, const std::string& expectedResult, const jinja2::ValuesMap& params)
     {
         PerformJsonTest<Template>(source, expectedResult, params);
-        PerformJsonTest<TemplateW>(ConvertString<std::wstring>(source), ConvertString<std::wstring>(expectedResult), params);
     }
 };
 
@@ -75,7 +73,7 @@ void PrintTo(const nlohmann::json& json, std::ostream* os)
 TEST_F(ToJson, SerializeObject)
 {
     const auto source = "{{obj | tojson}}";
-    const auto expectedResult = "{\"map\":{\"str1\":1},\"listValue\":[1,2,3],\"boolFalseValue\":false,\"boolTrueValue\":true,\"wstringValue\":\"rain\","
+    const auto expectedResult = "{\"map\":{\"str1\":1},\"listValue\":[1,2,3],\"boolFalseValue\":false,\"boolTrueValue\":true,"
                                 "\"stringValue\":\"rain\",\"doubleValue\":12.123000144958496,\"intValue\":3}";
 
     PerformBothJsonTests(source, expectedResult, GetObjectParam());

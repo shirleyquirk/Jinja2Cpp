@@ -97,8 +97,9 @@ auto MakeWrapped(T&& val)
 }
 
 using ValueRef = ReferenceWrapper<const Value>;
-using TargetString = std::variant<std::string, std::wstring>;
-using TargetStringView = std::variant<std::string_view, std::wstring_view>;
+// TODO: convert TargetString not visit
+using TargetString = std::variant<std::string>;
+using TargetStringView = std::variant<std::string_view>;
 
 class ListAdapter;
 class MapAdapter;

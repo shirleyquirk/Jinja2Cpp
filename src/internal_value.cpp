@@ -121,7 +121,7 @@ struct SubscriptionVisitor : public visitors::BaseVisitor<>
     template<typename CharT>
     InternalValue operator()(const MapAdapter& values, const std::basic_string<CharT>& fieldName) const
     {
-        auto field = ConvertString<std::string>(fieldName);
+        auto field = std::string(fieldName);
         if (!values.HasValue(field))
             return InternalValue();
 
@@ -131,7 +131,7 @@ struct SubscriptionVisitor : public visitors::BaseVisitor<>
     template<typename CharT>
     InternalValue operator()(const MapAdapter& values, const std::basic_string_view<CharT>& fieldName) const
     {
-        auto field = ConvertString<std::string>(fieldName);
+        auto field = std::string(fieldName);
         if (!values.HasValue(field))
             return InternalValue();
 
@@ -178,13 +178,15 @@ struct SubscriptionVisitor : public visitors::BaseVisitor<>
     template<typename CharT>
     InternalValue operator()(const KeyValuePair& values, const std::basic_string<CharT>& fieldName) const
     {
-        return SubscriptKvPair(values, ConvertString<std::string>(fieldName));
+        return SubscriptKvPair(values, fieldName);
     }
 
+    // NOTE(bwsq) whats the point of supporting string view if you're gonna immediately copy into a string at the first opportunity?
+    // TODO
     template<typename CharT>
     InternalValue operator()(const KeyValuePair& values, const std::basic_string_view<CharT>& fieldName) const
     {
-        return SubscriptKvPair(values, ConvertString<std::string>(fieldName));
+        return SubscriptKvPair(values, std::string(fieldName.begin(),fieldName.end()));
     }
 
     InternalValue SubscriptKvPair(const KeyValuePair& values, const std::string& field) const
@@ -231,8 +233,6 @@ struct StringGetter : public visitors::BaseVisitor<std::string>
 
     std::string operator()(const std::string& str) const { return str; }
     std::string operator()(const std::string_view& str) const { return std::string(str.begin(), str.end()); }
-    std::string operator()(const std::wstring& str) const { return ConvertString<std::string>(str); }
-    std::string operator()(const std::wstring_view& str) const { return ConvertString<std::string>(str); }
 };
 
 std::string AsString(const InternalValue& val)
@@ -893,26 +893,8 @@ struct OutputValueConvertor
     result_t operator()(const MapAdapter& adapter) const { return result_t(adapter.CreateGenericMap()); }
     result_t operator()(const ListAdapter& adapter) const { return result_t(adapter.CreateGenericList()); }
     result_t operator()(const ValueRef& ref) const { return ref.get(); }
-    result_t operator()(const TargetString& str) const
-    {
-        switch (str.index())
-        {
-            case 0:
-                return std::get<std::string>(str);
-            default:
-                return std::get<std::wstring>(str);
-        }
-    }
-    result_t operator()(const TargetStringView& str) const
-    {
-        switch (str.index())
-        {
-            case 0:
-                return std::get<std::string_view>(str);
-            default:
-                return std::get<std::wstring_view>(str);
-        }
-    }
+    result_t operator()(const TargetString& str) const { return std::get<0>(str); }
+    result_t operator()(const TargetStringView& str) const { return std::get<0>(str); }
     result_t operator()(const KeyValuePair& pair) const { return ValuesMap{ { "key", Value(pair.key) }, { "value", IntValue2Value(pair.value) } }; }
     result_t operator()(const Callable&) const { return result_t(); }
     result_t operator()(const UserCallable&) const { return result_t(); }

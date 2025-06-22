@@ -13,11 +13,6 @@ bool operator==(const Template& lhs, const Template& rhs)
     return lhs.IsEqual(rhs);
 }
 
-bool operator==(const TemplateW& lhs, const TemplateW& rhs)
-{
-    return lhs.IsEqual(rhs);
-}
-
 template<typename CharT>
 auto GetImpl(std::shared_ptr<ITemplateImpl> impl)
 {
@@ -101,88 +96,6 @@ Result<MetadataInfo<char>> Template::GetMetadataRaw()
 }
 
 bool Template::IsEqual(const Template& other) const
-{
-    return m_impl == other.m_impl;
-}
-
-TemplateW::TemplateW(TemplateEnv* env)
-    : m_impl(new TemplateImpl<wchar_t>(env))
-{
-
-}
-
-TemplateW::~TemplateW() = default;
-
-ResultW<void> TemplateW::Load(const wchar_t* tpl, std::string tplName)
-{
-    std::wstring t(tpl);
-    auto result = GetImpl<wchar_t>(m_impl)->Load(t, std::move(tplName));
-    return !result ? ResultW<void>() : std::unexpected(std::move(result.get()));
-}
-
-ResultW<void> TemplateW::Load(const std::wstring& str, std::string tplName)
-{
-    auto result = GetImpl<wchar_t>(m_impl)->Load(str, std::move(tplName));
-    return !result ? ResultW<void>() : std::unexpected(std::move(result.get()));
-}
-
-ResultW<void> TemplateW::Load(std::wistream& stream, std::string tplName)
-{
-    std::wstring t;
-
-    while (stream.good() && !stream.eof())
-    {
-        wchar_t buff[0x10000];
-        stream.read(buff, sizeof(buff));
-        auto read = stream.gcount();
-        if (read)
-            t.append(buff, buff + read);
-    }
-
-    auto result = GetImpl<wchar_t>(m_impl)->Load(t, std::move(tplName));
-    return !result ? ResultW<void>() : std::unexpected(std::move(result.get()));
-}
-
-ResultW<void> TemplateW::LoadFromFile(const std::string& fileName)
-{
-    std::wifstream file(fileName);
-
-    if (!file.good())
-        return ResultW<void>();
-
-    return Load(file, fileName);
-}
-
-ResultW<void> TemplateW::Render(std::wostream& os, const jinja2::ValuesMap& params)
-{
-    std::wstring buffer;
-    auto result = GetImpl<wchar_t>(m_impl)->Render(buffer, params);
-    if (!result)
-        os.write(buffer.data(), buffer.size());
-    return !result ? ResultW<void>() : ResultW<void>(std::unexpected(std::move(result.get())));
-}
-
-ResultW<std::wstring> TemplateW::RenderAsString(const jinja2::ValuesMap& params)
-{
-    std::wstring buffer;
-    auto result = GetImpl<wchar_t>(m_impl)->Render(buffer, params);
-
-    return !result ? buffer : ResultW<std::wstring>(std::unexpected(std::move(result.get())));
-}
-
-ResultW<GenericMap> TemplateW::GetMetadata()
-{
-    return GenericMap();
-    // GetImpl<wchar_t>(m_impl)->GetMetadata();
-}
-
-ResultW<MetadataInfo<wchar_t>> TemplateW::GetMetadataRaw()
-{
-    return MetadataInfo<wchar_t>();
-    // GetImpl<wchar_t>(m_impl)->GetMetadataRaw();
-    ;
-}
-bool TemplateW::IsEqual(const TemplateW& other) const
 {
     return m_impl == other.m_impl;
 }

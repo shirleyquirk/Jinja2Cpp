@@ -139,22 +139,10 @@ InternalValue BinaryExpression::Evaluate(RenderContext& context)
     }
     case jinja2::BinaryExpression::StringConcat:
     {
+        // TODO: can we do it without copying
         auto leftStr = context.GetRendererCallback()->GetAsTargetString(leftVal);
         auto rightStr = context.GetRendererCallback()->GetAsTargetString(rightVal);
-        TargetString resultStr;
-        std::string* nleftStr = GetIf<std::string>(&leftStr);
-        if (nleftStr != nullptr)
-        {
-            auto* nrightStr = GetIf<std::string>(&rightStr);
-            resultStr = *nleftStr + *nrightStr;
-        }
-        else
-        {
-            auto* wleftStr = GetIf<std::wstring>(&leftStr);
-            auto* wrightStr = GetIf<std::wstring>(&rightStr);
-            resultStr = *wleftStr + *wrightStr;
-        }
-        result = InternalValue(std::move(resultStr));
+        result = InternalValue(std::get<0>(leftStr) + std::get<0>(rightStr));
         break;
     }
     default:

@@ -68,7 +68,7 @@ template<typename CharT>
  * \brief Detailed information about the parse-time or render-time error
  *
  * If template parsing or rendering fails the detailed error information is provided. Exact specialization of ErrorInfoTpl is an object which contains
- * this information. Type of specialization depends on type of the template object: \ref ErrorInfo for \ref Template and \ref ErrorInfoW for \ref TemplateW.
+ * this information. Type of specialization depends on type of the template object: \ref ErrorInfo for \ref Template.
  *
  * Detailed information about an error contains:
  * - Error code
@@ -176,10 +176,8 @@ private:
 };
 
 using ErrorInfo = ErrorInfoTpl<char>;
-using ErrorInfoW = ErrorInfoTpl<wchar_t>;
 
 JINJA2CPP_EXPORT std::ostream& operator<<(std::ostream& os, const ErrorInfo& res);
-JINJA2CPP_EXPORT std::wostream& operator<<(std::wostream& os, const ErrorInfoW& res);
 } // namespace jinja2
 
 #endif // JINJA2CPP_ERROR_INFO_H

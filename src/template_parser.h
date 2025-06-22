@@ -46,16 +46,17 @@ struct ParserTraits;
 
 struct KeywordsInfo
 {
-    MultiStringLiteral name;
+    std::string_view name;
     Keyword type;
 };
 
-struct TokenStrInfo : MultiStringLiteral
+struct TokenStrInfo
 {
+    std::string_view name;
     template<typename CharT>
     auto GetName() const
     {
-        return MultiStringLiteral::template GetValue<CharT>();
+        return name;
     }
 };
 
@@ -64,19 +65,19 @@ struct ParserTraitsBase
 {
     static Token::Type s_keywords[];
     static KeywordsInfo s_keywordsInfo[41];
-    static std::unordered_map<int, MultiStringLiteral> s_tokens;
-    static MultiStringLiteral s_regexp;
+    static std::unordered_map<int, std::string_view> s_tokens;
+    static std::string_view s_regexp;
 };
 
 template<typename T>
-MultiStringLiteral ParserTraitsBase<T>::s_regexp = UNIVERSAL_STR(
+std::string_view ParserTraitsBase<T>::s_regexp = UNIVERSAL_STR(
   R"((\{\{)|(\}\})|(\{%[\+\-]?\s+raw\s+[\+\-]?%\})|(\{%[\+\-]?\s+endraw\s+[\+\-]?%\})|(\{%\s+meta\s+%\})|(\{%\s+endmeta\s+%\})|(\{%)|(%\})|(\{#)|(#\})|(\n))");
 
 template<>
 struct ParserTraits<char> : public ParserTraitsBase<>
 {
     static Regex GetRoughTokenizer()
-    { return Regex(s_regexp.GetValueStr<char>()); }
+    { return Regex(std::string(s_regexp)); }
     static Regex GetKeywords()
     {
         std::string pattern;
@@ -91,7 +92,7 @@ struct ParserTraits<char> : public ParserTraitsBase<>
             else
                 isFirst = false;
 
-            pattern += prefix + info.name.charValue + postfix;
+            pattern += prefix + std::string(info.name) + postfix;
         }
         return Regex(pattern);
     }
@@ -114,61 +115,6 @@ struct ParserTraits<char> : public ParserTraitsBase<>
             {
                 endBuff = nullptr;
                 double dblVal = strtod(buff, nullptr);
-                result = static_cast<double>(dblVal);
-            }
-            else
-                result = static_cast<int64_t>(val);
-        }
-        return result;
-    }
-};
-
-template<>
-struct ParserTraits<wchar_t> : public ParserTraitsBase<>
-{
-    static WideRegex GetRoughTokenizer()
-    { return WideRegex(s_regexp.GetValueStr<wchar_t>()); }
-    static WideRegex GetKeywords()
-    {
-        std::wstring pattern;
-        std::wstring prefix(L"(^");
-        std::wstring postfix(L"$)");
-
-        bool isFirst = true;
-        for (auto& info : s_keywordsInfo)
-        {
-            if (!isFirst)
-                pattern += L"|";
-            else
-                isFirst = false;
-
-            pattern += prefix + info.name.wcharValue + postfix;
-        }
-        return WideRegex(pattern);
-    }
-    static std::string GetAsString(const std::wstring& str, CharRange range)
-    {
-        auto srcStr = str.substr(range.startOffset, range.size());
-        return detail::StringConverter<std::wstring, std::string>::DoConvert(srcStr);
-    }
-    static InternalValue RangeToNum(const std::wstring& str, CharRange range, Token::Type hint)
-    {
-        wchar_t buff[std::max(std::numeric_limits<int64_t>::max_digits10, std::numeric_limits<double>::max_digits10) * 2 + 1];
-        std::copy(str.data() + range.startOffset, str.data() + range.endOffset, buff);
-        buff[range.size()] = 0;
-        InternalValue result;
-        if (hint == Token::IntegerNum)
-        {
-            result = static_cast<int64_t>(wcstoll(buff, nullptr, 0));
-        }
-        else
-        {
-            wchar_t* endBuff = nullptr;
-            int64_t val = wcstoll(buff, &endBuff, 10);
-            if ((errno == ERANGE) || *endBuff)
-            {
-                endBuff = nullptr;
-                double dblVal = wcstod(buff, nullptr);
                 result = static_cast<double>(dblVal);
             }
             else
@@ -765,7 +711,7 @@ private:
     {
         auto p = traits_t::s_tokens.find(tok.type);
         if (p != traits_t::s_tokens.end())
-            return p->second.template GetValueStr<CharT>();
+            return std::string(p->second);
 
         if (tok.range.size() != 0)
             return string_t(m_template->substr(tok.range.startOffset, tok.range.size()));
@@ -777,10 +723,10 @@ private:
                 return GetAsSameString(tpl, tok.value).value_or(std::basic_string<CharT>());
             }
 
-            return UNIVERSAL_STR("<<Identifier>>").template GetValueStr<CharT>();
+            return string_t("<<Identifier>>");
         }
         else if (tok.type == Token::String)
-            return UNIVERSAL_STR("<<String>>").template GetValueStr<CharT>();
+            return string_t("<<String>>");
 
         return string_t();
     }
@@ -1000,7 +946,7 @@ KeywordsInfo ParserTraitsBase<T>::s_keywordsInfo[41] = {
 };
 
 template<typename T>
-std::unordered_map<int, MultiStringLiteral> ParserTraitsBase<T>::s_tokens = {
+std::unordered_map<int, std::string_view> ParserTraitsBase<T>::s_tokens = {
     { Token::Unknown, UNIVERSAL_STR("<<Unknown>>") },
     { Token::Lt, UNIVERSAL_STR("<") },
     { Token::Gt, UNIVERSAL_STR(">") },

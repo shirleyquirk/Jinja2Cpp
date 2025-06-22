@@ -99,10 +99,6 @@ struct PrettyPrinter : visitors::BaseVisitor<std::string>
 
     std::string operator()(const std::string_view& str) const { return fmt::format("'{}'", fmt::basic_string_view<char>(str.data(), str.size())); }
 
-    std::string operator()(const std::wstring& str) const { return fmt::format("'{}'", ConvertString<std::string>(str)); }
-
-    std::string operator()(const std::wstring_view& str) const { return fmt::format("'{}'", ConvertString<std::string>(str)); }
-
     std::string operator()(bool val) const { return val ? "true"s : "false"s; }
 
     std::string operator()(EmptyValue) const { return "none"s; }
@@ -207,10 +203,6 @@ struct FormatArgumentConverter : visitors::BaseVisitor<FormatArgument>
     result_t operator()(const std::string& str) const { return make_result(str); }
 
     result_t operator()(const std::string_view& str) const { return make_result(std::string(str.data(), str.size())); }
-
-    result_t operator()(const std::wstring& str) const { return make_result(ConvertString<std::string>(str)); }
-
-    result_t operator()(const std::wstring_view& str) const { return make_result(ConvertString<std::string>(str)); }
 
     result_t operator()(double val) const { return make_result(val); }
 
@@ -332,21 +324,6 @@ public:
         EnforceThatNested();
 
         const auto result = fmt::format("{}", fmt::basic_string_view<char>(str.data(), str.size()));
-        return EscapeHtml(result);
-    }
-
-    std::string operator()(const std::wstring& str) const
-    {
-        EnforceThatNested();
-
-        return EscapeHtml(ConvertString<std::string>(str));
-    }
-
-    std::string operator()(const std::wstring_view& str) const
-    {
-        EnforceThatNested();
-
-        const auto result = fmt::format("{}", ConvertString<std::string>(str));
         return EscapeHtml(result);
     }
 

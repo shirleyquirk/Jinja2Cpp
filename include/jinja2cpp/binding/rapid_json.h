@@ -2,7 +2,6 @@
 #define JINJA2CPP_BINDING_RAPID_JSON_H
 
 #include <jinja2cpp/reflected_value.h>
-#include <jinja2cpp/string_helpers.h>
 
 #include <rapidjson/document.h>
 #include <rapidjson/rapidjson.h>
@@ -19,12 +18,6 @@ template<>
 struct RapidJsonNameConverter<char>
 {
     static const std::string& GetName(const std::string& str) { return str; }
-};
-
-template<>
-struct RapidJsonNameConverter<wchar_t>
-{
-    static std::wstring GetName(const std::string& str) { return ConvertString<std::wstring>(str); }
 };
 
 template<typename T>
@@ -68,7 +61,7 @@ public:
         result.reserve(j->MemberCount());
         for (auto it = j->MemberBegin(); it != j->MemberEnd(); ++ it)
         {
-            result.emplace_back(ConvertString<std::string>(std::basic_string_view<typename T::Ch>(it->name.GetString())));
+            result.emplace_back(std::basic_string_view<typename T::Ch>(it->name.GetString()));
         }
         return result;
     }

@@ -20,7 +20,6 @@ namespace jinja2
 template<typename CharT>
 using FileStreamPtr = std::unique_ptr<std::basic_istream<CharT>, void (*)(std::basic_istream<CharT>*)>;
 using CharFileStreamPtr = FileStreamPtr<char>;
-using WCharFileStreamPtr = FileStreamPtr<wchar_t>;
 
 /*!
  * \brief Generic interface to filesystem handlers (loaders)
@@ -46,17 +45,7 @@ public:
      * @return Opened stream object or empty pointer in case of any error
      */
     virtual CharFileStreamPtr OpenStream(const std::string& name) const = 0;
-    /*!
-     * \brief Method is called to open the file with the specified name in 'wide-char' mode.
-     *
-     * Method should return unique pointer to the std::wistream object with custom deleter (\ref WCharFileStreamPtr) . Deleter should properly delete pointee
-     * stream object.
-     *
-     * @param name Name of the file to open
-     * @return Opened stream object or empty pointer in case of any error
-     */
-    virtual WCharFileStreamPtr OpenWStream(const std::string& name) const = 0;
-    /*!
+   /*!
      * \brief Method is called to obtain the modification date of the specified file (if applicable)
      *
      * If the underlaying filesystem supports retrival of the last modification date of the file this method should return this date when called. In other
@@ -89,18 +78,7 @@ public:
      * @param fileContent Content of the file to add
      */
     void AddFile(std::string fileName, std::string fileContent);
-    /*!
-     * \brief Add new wide-char "file" to the filesystem handler
-     *
-     * Adds new file entry to the internal dictionary object or overwrite the existing one. New entry contains the specified content of the file
-     *
-     * @param fileName Name of the file to add
-     * @param fileContent Content of the file to add
-     */
-    void AddFile(std::string fileName, std::wstring fileContent);
-
     CharFileStreamPtr OpenStream(const std::string& name) const override;
-    WCharFileStreamPtr OpenWStream(const std::string& name) const override;
     std::optional<std::chrono::system_clock::time_point> GetLastModificationDate(const std::string& name) const override;
 
     /*!
@@ -113,12 +91,9 @@ private:
     struct FileContent
     {
         std::optional<std::string> narrowContent;
-        std::optional<std::wstring> wideContent;
         bool operator==(const FileContent& other) const
         {
-            if (narrowContent != other.narrowContent)
-                return false;
-            return wideContent == other.wideContent;
+            return narrowContent == other.narrowContent;
         }
         bool operator!=(const FileContent& other) const
         {
@@ -174,7 +149,6 @@ public:
     std::string GetFullFilePath(const std::string& name) const;
 
     CharFileStreamPtr OpenStream(const std::string& name) const override;
-    WCharFileStreamPtr OpenWStream(const std::string& name) const override;
     /*!
      * \brief Open the specified file as a binary stream
      *

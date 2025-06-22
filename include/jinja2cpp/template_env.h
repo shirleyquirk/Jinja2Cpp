@@ -159,18 +159,6 @@ public:
      * @return Either loaded template or load/parse error. See \ref ErrorInfoTpl
      */
     std::expected<Template, ErrorInfo> LoadTemplate(std::string fileName);
-    /*!
-     * \brief Load wide char template with the specified name via registered file handlers
-     *
-     * In case of specified file present in any of the registered handlers, template is loaded and parsed. If any
-     * error occurred during the loading or parsing detailed diagnostic will be returned.
-     * Method is thread-unsafe. It's dangerous to add new filesystem handlers and load templates simultaneously.
-     *
-     * @param fileName Template name to load
-     *
-     * @return Either loaded template or load/parse error. See \ref ErrorInfoTpl
-     */
-    std::expected<TemplateW, ErrorInfoW> LoadTemplateW(std::string fileName);
 
     /*!
      * \brief Add global variable to the environment
@@ -225,8 +213,6 @@ public:
         if (m_globalValues != other.m_globalValues)
             return false;
         if (m_templateCache != other.m_templateCache)
-            return false;
-        if (m_templateWCache != other.m_templateWCache)
             return false;
 
         return true;
@@ -294,25 +280,11 @@ private:
         }
     };
 
-    struct TemplateWCacheEntry : public BaseTemplateInfo
-    {
-        TemplateW tpl;
-        bool operator==(const TemplateWCacheEntry& other) const
-        {
-            return BaseTemplateInfo::operator==(other) && tpl == other.tpl;
-        }
-        bool operator!=(const TemplateWCacheEntry& other) const
-        {
-            return !(*this == other);
-        }
-    };
-
     std::vector<FsHandler> m_filesystemHandlers;
     Settings m_settings;
     ValuesMap m_globalValues;
     std::shared_timed_mutex m_guard;
     std::unordered_map<std::string, TemplateCacheEntry> m_templateCache;
-    std::unordered_map<std::string, TemplateWCacheEntry> m_templateWCache;
 };
 
 } // namespace jinja2

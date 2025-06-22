@@ -77,15 +77,6 @@ struct TemplateLoader<char>
     }
 };
 
-template<>
-struct TemplateLoader<wchar_t>
-{
-    static auto Load(const std::string& fileName, TemplateEnv* env)
-    {
-        return env->LoadTemplateW(fileName);
-    }
-};
-
 template<typename CharT>
 class GenericStreamWriter : public OutStream::StreamWriter
 {
@@ -142,7 +133,7 @@ struct ErrorConverter<ErrorInfoTpl<CharT1>, ErrorInfoTpl<CharT2>>
         typename ErrorInfoTpl<CharT1>::Data errorData;
         errorData.code = srcError.GetCode();
         errorData.srcLoc = srcError.GetErrorLocation();
-        errorData.locationDescr = ConvertString<std::basic_string<CharT1>>(srcError.GetLocationDescr());
+        errorData.locationDescr = std::basic_string<CharT1>(srcError.GetLocationDescr());
         errorData.extraParams = srcError.GetExtraParams();
 
         return ErrorInfoTpl<CharT1>(errorData);
@@ -282,10 +273,6 @@ public:
         {
             return ErrorConverter<ErrorInfoTpl<CharT>, ErrorInfoTpl<char>>::Convert(error);
         }
-        catch (const ErrorInfoTpl<wchar_t>& error)
-        {
-            return ErrorConverter<ErrorInfoTpl<CharT>, ErrorInfoTpl<wchar_t>>::Convert(error);
-        }
         catch (const std::exception& ex)
         {
             typename ErrorInfoTpl<CharT>::Data errorData;
@@ -308,8 +295,7 @@ public:
     }
 
     using TplLoadResultType = std::variant<EmptyValue,
-            std::expected<std::shared_ptr<TemplateImpl<char>>, ErrorInfo>,
-            std::expected<std::shared_ptr<TemplateImpl<wchar_t>>, ErrorInfoW>>;
+            std::expected<std::shared_ptr<TemplateImpl<char>>, ErrorInfo>>;
 
     using TplOrError = std::expected<std::shared_ptr<TemplateImpl<CharT>>, ErrorInfoTpl<CharT>>;
 
@@ -425,15 +411,13 @@ private:
         }
 
         std::variant<EmptyValue,
-            std::expected<std::shared_ptr<TemplateImpl<char>>, ErrorInfo>,
-            std::expected<std::shared_ptr<TemplateImpl<wchar_t>>, ErrorInfoW>> LoadTemplate(const std::string& fileName) const override
+            std::expected<std::shared_ptr<TemplateImpl<char>>, ErrorInfo>> LoadTemplate(const std::string& fileName) const override
         {
             return m_host->LoadTemplate(fileName);
         }
 
         std::variant<EmptyValue,
-                std::expected<std::shared_ptr<TemplateImpl<char>>, ErrorInfo>,
-                std::expected<std::shared_ptr<TemplateImpl<wchar_t>>, ErrorInfoW>> LoadTemplate(const InternalValue& fileName) const override
+                std::expected<std::shared_ptr<TemplateImpl<char>>, ErrorInfo>> LoadTemplate(const InternalValue& fileName) const override
         {
             return m_host->LoadTemplate(fileName);
         }

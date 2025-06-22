@@ -58,32 +58,6 @@ Line8
     EXPECT_EQ(test2Content, ReadFile(test2Stream));
 }
 
-TEST_F(FilesystemHandlerTest, MemoryFS_Wide2WideReading)
-{
-    const std::wstring test1Content = LR"(
-Line1
-Line2
-Line3
-)";
-    const std::wstring test2Content = LR"(
-Line6
-Line7
-Line8
-)";
-    jinja2::MemoryFileSystem fs;
-    fs.AddFile("test1.j2tpl", test1Content);
-    fs.AddFile("test2.j2tpl", test2Content);
-
-    auto testStream = fs.OpenWStream("test.j2tpl");
-    EXPECT_FALSE((bool)testStream);
-    auto test1Stream = fs.OpenWStream("test1.j2tpl");
-    EXPECT_TRUE((bool)test1Stream);
-    EXPECT_EQ(test1Content, ReadFile(test1Stream));
-    auto test2Stream = fs.OpenWStream("test2.j2tpl");
-    EXPECT_TRUE((bool)test2Stream);
-    EXPECT_EQ(test2Content, ReadFile(test2Stream));
-}
-
 TEST_F(FilesystemHandlerTest, RealFS_NarrowReading)
 {
     const std::string test1Content =
@@ -115,19 +89,6 @@ R"(Hello World!
     auto test3Stream = fs.OpenStream("simple_template1.j2tpl");
     EXPECT_TRUE((bool)test3Stream);
     EXPECT_EQ(test1Content, ReadFile(test3Stream));
-}
-
-TEST_F(FilesystemHandlerTest, RealFS_WideReading)
-{
-    const std::wstring test1Content =
-LR"(Hello World!
-)";
-    jinja2::RealFileSystem fs;
-    auto testStream = fs.OpenWStream("===incorrect====.j2tpl");
-    EXPECT_FALSE((bool)testStream);
-    auto test1Stream = fs.OpenWStream("test_data/simple_template1.j2tpl");
-    EXPECT_TRUE((bool)test1Stream);
-    EXPECT_EQ(test1Content, ReadFile(test1Stream));
 }
 
 TEST_F(FilesystemHandlerTest, TestDefaultCaching)

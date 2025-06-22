@@ -26,18 +26,13 @@ R"(
 {{ 10/10 + 2*5 }}
 {{ ([1, 2] + [3, 4]) | pprint }}
 {{ 'Hello' + " " + 'World ' + stringValue }}
-{{ 'Hello' + " " + 'World ' + wstringValue }}
-{{ stringValue + ' ' + wstringValue }}
-{{ wstringValue + ' ' + stringValue }}
-{{ wstringValue + ' ' + wstringValue }}
 {{ stringValue + ' ' + stringValue }}
-{{ 'Hello' ~ " " ~ 123 ~ ' ' ~ 1.234 ~ " " ~ true ~ " " ~ intValue ~ " " ~ false ~ ' ' ~ 'World ' ~ stringValue  ~ ' ' ~ wstringValue}}
+{{ 'Hello' ~ " " ~ 123 ~ ' ' ~ 1.234 ~ " " ~ true ~ " " ~ intValue ~ " " ~ false ~ ' ' ~ 'World ' ~ stringValue }}
 {{ 'abc' * 0 }}
 {{ 'abc' * 1 }}
 {{ '123' * intValue }}
 {{ ([1, 2, 3] * intValue) | pprint }}
 {{ stringValue * intValue }}
-{{ wstringValue * intValue }}
 )",
 //-----------
 R"(
@@ -55,17 +50,12 @@ R"(
 11
 [1, 2, 3, 4]
 Hello World rain
-Hello World rain
 rain rain
-rain rain
-rain rain
-rain rain
-Hello 123 1.234 true 3 false World rain rain
+Hello 123 1.234 true 3 false World rain
 
 abc
 123123123
 [1, 2, 3, 1, 2, 3, 1, 2, 3]
-rainrainrain
 rainrainrain
 )")
 {
@@ -73,7 +63,6 @@ rainrainrain
         {"intValue", 3},
         {"doubleValue", 12.123f},
         {"stringValue", "rain"},
-        {"wstringValue", std::wstring(L"rain")},
         {"boolFalseValue", false},
         {"boolTrueValue", true},
     };
@@ -83,7 +72,7 @@ MULTISTR_TEST(ExpressionsMultiStrTest, IfExpression,
 R"(
 {{ intValue if intValue is eq(3) }}
 {{ stringValue if intValue < 3 else doubleValue }}
-{{ wstringValue if intValue == 3 else doubleValue }}
+{{ stringValue if intValue == 3 else doubleValue }}
 )",
 //-----------
 R"(
@@ -96,7 +85,6 @@ rain
         {"intValue", 3},
         {"doubleValue", 12.123f},
         {"stringValue", "rain"},
-        {"wstringValue", std::wstring(L"rain")},
         {"boolFalseValue", false},
         {"boolTrueValue", true},
     };
@@ -277,9 +265,7 @@ INSTANTIATE_TEST_SUITE_P(DotSubscriptionTest, ExpressionSubstitutionTest, ::test
                                           InputOutputPair{ "reflectedVal.dblValue", "0" },
                                           InputOutputPair{ "reflectedVal.boolValue", "false" },
                                           InputOutputPair{ "reflectedVal.strValue", "test string 0" },
-                                          InputOutputPair{ "reflectedVal.wstrValue", "test string 0" },
                                           InputOutputPair{ "reflectedVal.strViewValue", "test string 0" },
-                                          InputOutputPair{ "reflectedVal.wstrViewValue", "test string 0" },
                                           InputOutputPair{ "reflectedVal.StrValue", "" }));
 
 
