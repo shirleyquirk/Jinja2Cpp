@@ -41,7 +41,6 @@ using RegexIterator = std::regex_iterator<CharIterator>;
 
 namespace jinja2
 {
-template<typename CharT>
 struct ParserTraits;
 
 struct KeywordsInfo
@@ -53,7 +52,6 @@ struct KeywordsInfo
 struct TokenStrInfo
 {
     std::string_view name;
-    template<typename CharT>
     auto GetName() const
     {
         return name;
@@ -73,8 +71,7 @@ template<typename T>
 std::string_view ParserTraitsBase<T>::s_regexp = UNIVERSAL_STR(
   R"((\{\{)|(\}\})|(\{%[\+\-]?\s+raw\s+[\+\-]?%\})|(\{%[\+\-]?\s+endraw\s+[\+\-]?%\})|(\{%\s+meta\s+%\})|(\{%\s+endmeta\s+%\})|(\{%)|(%\})|(\{#)|(#\})|(\n))");
 
-template<>
-struct ParserTraits<char> : public ParserTraitsBase<>
+struct ParserTraits : public ParserTraitsBase<>
 {
     static Regex GetRoughTokenizer()
     { return Regex(std::string(s_regexp)); }
@@ -205,14 +202,13 @@ private:
     TemplateEnv* m_env;
 };
 
-template<typename CharT>
 class TemplateParser : public LexerHelper
 {
 public:
-    using string_t = std::basic_string<CharT>;
-    using traits_t = ParserTraits<CharT>;
+    using string_t = std::string;
+    using traits_t = ParserTraits;
     using sregex_iterator = RegexIterator<typename string_t::const_iterator>;
-    using ErrorInfo = ErrorInfoTpl<CharT>;
+    using ErrorInfo = ErrorInfoTpl;
     using ParseResult = std::expected<RendererPtr, std::vector<ErrorInfo>>;
 
     TemplateParser(const string_t* tpl, const Settings& setts, TemplateEnv* env, std::string tplName)
@@ -244,9 +240,9 @@ public:
         return composeRenderer;
     }
 
-    MetadataInfo<CharT> GetMetadataInfo() const
+    MetadataInfo GetMetadataInfo() const
     {
-        MetadataInfo<CharT> result;
+        MetadataInfo result;
         result.metadataType = m_metadataType;
         result.metadata = m_metadata;
         result.location = m_metadataLocation;
@@ -605,7 +601,7 @@ private:
                     auto range = block.range;
                     if (range.size() == 0)
                         break;
-                    auto metadata = std::basic_string_view<CharT>(m_template->data() + range.startOffset, range.size());
+                    auto metadata = std::string_view(m_template->data() + range.startOffset, range.size());
                     if (!boost::algorithm::all(metadata, boost::algorithm::is_space()))
                         m_metadata = metadata;
                     break;
@@ -640,7 +636,7 @@ private:
     template<typename R, typename P, typename... Args>
     std::expected<R, ParseError> InvokeParser(const TextBlockInfo& block, Args&&... args)
     {
-        lexertk::generator<CharT> tokenizer;
+        lexertk::generator<char> tokenizer;
         auto range = block.range;
         auto start = m_template->data();
         if (!tokenizer.process(start + range.startOffset, start + range.endOffset))
@@ -707,7 +703,7 @@ private:
         return tok;
     }
 
-    auto TokenToString(const Token& tok)
+    string_t TokenToString(const Token& tok)
     {
         auto p = traits_t::s_tokens.find(tok.type);
         if (p != traits_t::s_tokens.end())
@@ -719,8 +715,8 @@ private:
         {
             if (!tok.value.IsEmpty())
             {
-                std::basic_string<CharT> tpl;
-                return GetAsSameString(tpl, tok.value).value_or(std::basic_string<CharT>());
+                std::string tpl;
+                return GetAsSameString(tpl, tok.value).value_or(std::string());
             }
 
             return string_t("<<Identifier>>");
@@ -799,10 +795,8 @@ private:
         --line;
         --col;
 
-        auto toCharT = [](char ch) { return static_cast<CharT>(ch); };
-
         auto& lineInfo = m_lines[line];
-        std::basic_ostringstream<CharT> os;
+        std::ostringstream os;
         auto origLine = m_template->substr(lineInfo.range.startOffset, lineInfo.range.size());
         os << origLine << std::endl;
 
@@ -822,11 +816,11 @@ private:
         if (col < spacePrefixLen)
         {
             for (unsigned i = 0; i < col; ++i)
-                os << toCharT(' ');
+                os << ' ';
 
-            os << toCharT('^');
+            os << '^';
             for (int i = 0; i < tailLen; ++i)
-                os << toCharT('-');
+                os << '-';
             return os.str();
         }
 
@@ -836,13 +830,13 @@ private:
         if (actualHeadLen == headLen)
         {
             for (std::size_t i = 0; i < col - actualHeadLen - spacePrefixLen; ++i)
-                os << toCharT(' ');
+                os << ' ';
         }
         for (int i = 0; i < actualHeadLen; ++i)
-            os << toCharT('-');
-        os << toCharT('^');
+            os << '-';
+        os << '^';
         for (int i = 0; i < tailLen; ++i)
-            os << toCharT('-');
+            os << '-';
 
         return os.str();
     }
@@ -888,14 +882,14 @@ private:
     std::string m_templateName;
     const Settings& m_settings;
     TemplateEnv* m_env = nullptr;
-    BasicRegex<CharT> m_roughTokenizer;
-    BasicRegex<CharT> m_keywords;
+    Regex m_roughTokenizer;
+    Regex m_keywords;
     std::vector<LineInfo> m_lines;
     std::vector<TextBlockInfo> m_textBlocks;
     LineInfo m_currentLineInfo = {};
     TextBlockInfo m_currentBlockInfo = {};
     bool m_hasMetaBlock = false;
-    std::basic_string_view<CharT> m_metadata;
+    std::string_view m_metadata;
     std::string m_metadataType;
     SourceLocation m_metadataLocation;
 };

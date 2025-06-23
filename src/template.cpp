@@ -13,14 +13,13 @@ bool operator==(const Template& lhs, const Template& rhs)
     return lhs.IsEqual(rhs);
 }
 
-template<typename CharT>
 auto GetImpl(std::shared_ptr<ITemplateImpl> impl)
 {
-    return static_cast<TemplateImpl<CharT>*>(impl.get());
+    return static_cast<TemplateImpl*>(impl.get());
 }
 
 Template::Template(TemplateEnv* env)
-    : m_impl(new TemplateImpl<char>(env))
+    : m_impl(new TemplateImpl(env))
 {
 
 }
@@ -30,13 +29,13 @@ Template::~Template() = default;
 Result<void> Template::Load(const char* tpl, std::string tplName)
 {
     std::string t(tpl);
-    auto result = GetImpl<char>(m_impl)->Load(std::move(t), std::move(tplName));
+    auto result = GetImpl(m_impl)->Load(std::move(t), std::move(tplName));
     return !result ? Result<void>() : std::unexpected(std::move(result.get()));
 }
 
 Result<void> Template::Load(const std::string& str, std::string tplName)
 {
-    auto result = GetImpl<char>(m_impl)->Load(str, std::move(tplName));
+    auto result = GetImpl(m_impl)->Load(str, std::move(tplName));
     return !result ? Result<void>() : std::unexpected(std::move(result.get()));
 }
 
@@ -53,7 +52,7 @@ Result<void> Template::Load(std::istream& stream, std::string tplName)
             t.append(buff, buff + read);
     }
 
-    auto result = GetImpl<char>(m_impl)->Load(std::move(t), std::move(tplName));
+    auto result = GetImpl(m_impl)->Load(std::move(t), std::move(tplName));
     return !result ? Result<void>() : std::unexpected(std::move(result.get()));
 }
 
@@ -70,7 +69,7 @@ Result<void> Template::LoadFromFile(const std::string& fileName)
 Result<void> Template::Render(std::ostream& os, const jinja2::ValuesMap& params)
 {
     std::string buffer;
-    auto result = GetImpl<char>(m_impl)->Render(buffer, params);
+    auto result = GetImpl(m_impl)->Render(buffer, params);
 
     if (!result)
         os.write(buffer.data(), buffer.size());
@@ -81,18 +80,18 @@ Result<void> Template::Render(std::ostream& os, const jinja2::ValuesMap& params)
 Result<std::string> Template::RenderAsString(const jinja2::ValuesMap& params)
 {
     std::string buffer;
-    auto result = GetImpl<char>(m_impl)->Render(buffer, params);
+    auto result = GetImpl(m_impl)->Render(buffer, params);
     return !result ? Result<std::string>(std::move(buffer)) : Result<std::string>(std::unexpected(std::move(result.get())));;
 }
 
 Result<GenericMap> Template::GetMetadata()
 {
-    return GetImpl<char>(m_impl)->GetMetadata();
+    return GetImpl(m_impl)->GetMetadata();
 }
 
-Result<MetadataInfo<char>> Template::GetMetadataRaw()
+Result<MetadataInfo> Template::GetMetadataRaw()
 {
-    return GetImpl<char>(m_impl)->GetMetadataRaw();
+    return GetImpl(m_impl)->GetMetadataRaw();
 }
 
 bool Template::IsEqual(const Template& other) const

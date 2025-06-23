@@ -6,26 +6,19 @@
 #include <rapidjson/document.h>
 #include <rapidjson/rapidjson.h>
 
+#include <type_traits>
+
 namespace jinja2
 {
 namespace detail
 {
 
-template<typename CharT>
-struct RapidJsonNameConverter;
-
-template<>
-struct RapidJsonNameConverter<char>
-{
-    static const std::string& GetName(const std::string& str) { return str; }
-};
-
 template<typename T>
 class RapidJsonObjectAccessor : public IMapItemAccessor, public ReflectedDataHolder<T, false>
 {
+    static_assert(std::same_as<typename T::Ch,char>);
 public:
     using ReflectedDataHolder<T, false>::ReflectedDataHolder;
-    using NameCvt = RapidJsonNameConverter<typename T::Ch>;
     using ThisType = RapidJsonObjectAccessor<T>;
     ~RapidJsonObjectAccessor() override = default;
 
@@ -38,13 +31,12 @@ public:
     bool HasValue(const std::string& name) const override
     {
         auto j = this->GetValue();
-        return j ? j->HasMember(NameCvt::GetName(name).c_str()) : false;
+        return j ? j->HasMember(name.c_str()) : false;
     }
 
-    Value GetValueByName(const std::string& nameOrig) const override
+    Value GetValueByName(const std::string& name) const override
     {
         auto j = this->GetValue();
-        const auto& name = NameCvt::GetName(nameOrig);
         if (!j || !j->HasMember(name.c_str()))
             return Value();
 
@@ -61,7 +53,7 @@ public:
         result.reserve(j->MemberCount());
         for (auto it = j->MemberBegin(); it != j->MemberEnd(); ++ it)
         {
-            result.emplace_back(std::basic_string_view<typename T::Ch>(it->name.GetString()));
+            result.emplace_back(std::string_view(it->name.GetString()));
         }
         return result;
     }

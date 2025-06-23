@@ -18,7 +18,6 @@ public:
 template<typename T = Statement>
 using StatementPtr = std::shared_ptr<T>;
 
-template<typename CharT>
 class TemplateImpl;
 
 struct MacroParam

@@ -10,7 +10,6 @@ namespace
 template<typename FmtCtx>
 struct ValueRenderer
 {
-    using CharT = typename FmtCtx::char_type;
     FmtCtx* ctx;
 
     explicit ValueRenderer(FmtCtx* c)
@@ -26,14 +25,14 @@ struct ValueRenderer
     }
     void operator()(const jinja2::EmptyValue&) const { fmt::format_to(ctx->out(), ""); }
 
-    void operator()(const std::basic_string<CharT>& val) const
+    void operator()(const std::string& val) const
     {
-        fmt::format_to(ctx->out(), "{}", std::basic_string<CharT>(val));
+        fmt::format_to(ctx->out(), "{}", std::string(val));
     }
 
-    void operator()(const std::basic_string_view<CharT>& val) const
+    void operator()(const std::string_view& val) const
     {
-        fmt::format_to(ctx->out(), "{}", std::basic_string<CharT>(val));
+        fmt::format_to(ctx->out(), "{}", std::string(val));
     }
 
     void operator()(const jinja2::ValuesList& vals) const
@@ -62,7 +61,7 @@ struct ValueRenderer
             else
                 fmt::format_to(ctx->out(), ", ");
 
-            fmt::format_to(ctx->out(), "{{\"{}\",", std::basic_string<CharT>(val.first));
+            fmt::format_to(ctx->out(), "{{\"{}\",", std::string(val.first));
             std::visit(ValueRenderer<FmtCtx>(ctx), val.second.data());
             fmt::format_to(ctx->out(), "}}");
         }
@@ -91,8 +90,8 @@ struct ValueRenderer
 
 namespace fmt
 {
-template<typename CharT>
-struct formatter<jinja2::Value, CharT>
+template<>
+struct formatter<jinja2::Value>
 {
     template<typename ParseContext>
     constexpr auto parse(ParseContext& ctx)
@@ -112,11 +111,10 @@ struct formatter<jinja2::Value, CharT>
 namespace jinja2
 {
 
-template<typename CharT>
-void RenderErrorInfo(std::basic_string<CharT>& result, const ErrorInfoTpl<CharT>& errInfo)
+void RenderErrorInfo(std::string& result, const ErrorInfoTpl& errInfo)
 {
-    using string_t = std::basic_string<CharT>;
-    auto out = fmt::basic_memory_buffer<CharT>();
+    using string_t = std::string;
+    auto out = fmt::memory_buffer();
 
     auto& loc = errInfo.GetErrorLocation();
 
@@ -259,8 +257,7 @@ void RenderErrorInfo(std::basic_string<CharT>& result, const ErrorInfoTpl<CharT>
     result = string_t{out.data(),out.size()};
 }
 
-template<>
-std::string ErrorInfoTpl<char>::ToString() const
+std::string ErrorInfoTpl::ToString() const
 {
     std::string result;
     RenderErrorInfo(result, *this);

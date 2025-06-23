@@ -17,9 +17,8 @@
 namespace jinja2
 {
 
-template<typename CharT>
-using FileStreamPtr = std::unique_ptr<std::basic_istream<CharT>, void (*)(std::basic_istream<CharT>*)>;
-using CharFileStreamPtr = FileStreamPtr<char>;
+using FileStreamPtr = std::unique_ptr<std::istream, void (*)(std::istream*)>;
+using CharFileStreamPtr = FileStreamPtr;
 
 /*!
  * \brief Generic interface to filesystem handlers (loaders)

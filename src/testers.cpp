@@ -158,13 +158,11 @@ struct ValueKindGetter : visitors::BaseVisitor<ValueKind>
     {
         return ValueKind::Boolean;
     }
-    template<typename CharT>
-    ValueKind operator()(const std::basic_string<CharT>&) const
+    ValueKind operator()(const std::string&) const
     {
         return ValueKind::String;
     }
-    template<typename CharT>
-    ValueKind operator()(const std::basic_string_view<CharT>&) const
+    ValueKind operator()(const std::string_view&) const
     {
         return ValueKind::String;
     }
@@ -272,8 +270,7 @@ bool ValueTester::Test(const InternalValue& baseVal, RenderContext& context)
         } else if (seqKind == ValueKind::String) {
             result = ApplyStringConverter(baseVal, [&](const auto& srcStr) {
                     std::decay_t<decltype(srcStr)> emptyStrView;
-                    using CharT = typename decltype(emptyStrView)::value_type;
-                    std::basic_string<CharT> emptyStr;
+                    std::string emptyStr;
 
                     auto substring = sv_to_string(srcStr);
                     auto seq = GetAsSameString(srcStr, this->GetArgumentValue("seq", context)).value_or(emptyStr);

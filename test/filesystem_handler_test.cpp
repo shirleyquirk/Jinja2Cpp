@@ -9,12 +9,11 @@
 class FilesystemHandlerTest : public testing::Test
 {
 public:
-    template<typename CharT>
-    std::basic_string<CharT> ReadFile(jinja2::FileStreamPtr<CharT>& stream)
+    std::string ReadFile(jinja2::FileStreamPtr& stream)
     {
-        std::basic_string<CharT> result;
+        std::string result;
         constexpr size_t buffSize = 0x10000;
-        CharT buff[buffSize];
+        char buff[buffSize];
 
         if (!stream)
             return result;

@@ -573,17 +573,15 @@ INSTANTIATE_TEST_SUITE_P(Center, FilterGenericTest, ::testing::Values(
                             ));
 struct XmlAttr : ::testing::Test
 {
-    template<typename CharT>
-    using AttributeSet = std::set<std::basic_string<CharT>>;
+    using AttributeSet = std::set<std::string>;
 
-    template <typename CharT>
-    AttributeSet<CharT> ExtractAttributeSet(const std::basic_string<CharT> &attributeString)
+    AttributeSet ExtractAttributeSet(const std::string &attributeString)
     {
-        using String = std::basic_string<CharT>;
-        using Regex = std::basic_regex<CharT>;
+        using String = std::string;
+        using Regex = std::regex;
         using RegexTokenIterator = std::regex_token_iterator<typename String::const_iterator>;
          
-        AttributeSet<CharT> result;
+        AttributeSet result;
         const Regex pattern(std::string("(\\S+=[\"].*?[\"])"));
         std::copy(RegexTokenIterator(attributeString.begin(), attributeString.end(), pattern, 0),
                   RegexTokenIterator(),

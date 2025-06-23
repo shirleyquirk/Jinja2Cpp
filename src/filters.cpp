@@ -922,8 +922,7 @@ struct ValueConverterImpl : visitors::BaseVisitor<>
         return intVal;
     }
 
-    template<typename CharT>
-    InternalValue operator()(const std::basic_string<CharT>& val) const
+    InternalValue operator()(const std::string& val) const
     {
         InternalValue result;
         switch (m_params.mode)
@@ -960,8 +959,7 @@ struct ValueConverterImpl : visitors::BaseVisitor<>
         return result;
     }
 
-    template<typename CharT>
-    InternalValue operator()(const std::basic_string_view<CharT>& val) const
+    InternalValue operator()(const std::string_view& val) const
     {
         InternalValue result;
         switch (m_params.mode)
@@ -969,7 +967,7 @@ struct ValueConverterImpl : visitors::BaseVisitor<>
             case ValueConverter::ToFloatMode:
             {
                 bool converted = false;
-                std::basic_string<CharT> str(val.begin(), val.end());
+                std::string str(val.begin(), val.end());
                 double dblVal = ConvertToDouble(str.c_str(), converted);
 
                 if (!converted)
@@ -982,7 +980,7 @@ struct ValueConverterImpl : visitors::BaseVisitor<>
             {
                 int base = static_cast<int>(GetAs<int64_t>(m_params.base));
                 bool converted = false;
-                std::basic_string<CharT> str(val.begin(), val.end());
+                std::string str(val.begin(), val.end());
                 long long intVal = ConvertToInt(str.c_str(), base, converted);
 
                 if (!converted)

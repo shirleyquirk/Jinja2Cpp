@@ -19,15 +19,15 @@ namespace jinja2
 namespace filters
 {
 
+// TODO this smells like it should be deleted entirely
 template<typename D>
 struct StringEncoder : public visitors::BaseVisitor<TargetString>
 {
     using BaseVisitor::operator();
 
-    template<typename CharT>
-    TargetString operator() (const std::basic_string<CharT>& str) const
+    TargetString operator() (const std::string& str) const
     {
-        std::basic_string<CharT> result;
+        std::string result;
 
         for (auto& ch : str)
         {
@@ -37,10 +37,9 @@ struct StringEncoder : public visitors::BaseVisitor<TargetString>
         return TargetString(std::move(result));
     }
 
-    template<typename CharT>
-    TargetString operator() (const std::basic_string_view<CharT>& str) const
+    TargetString operator() (const std::string_view& str) const
     {
-        std::basic_string<CharT> result;
+        std::string result;
 
         for (auto& ch : str)
         {
@@ -50,15 +49,15 @@ struct StringEncoder : public visitors::BaseVisitor<TargetString>
         return TargetString(std::move(result));
     }
 
-    template<typename Str, typename CharT>
-    static void AppendChar(Str& str, CharT ch)
+    template<typename Str>
+    static void AppendChar(Str& str, char ch)
     {
-        str.push_back(static_cast<typename Str::value_type>(ch));
+        str.push_back(ch);
     }
-    template<typename Str, typename CharT, typename ... Args>
-    static void AppendChar(Str& str, CharT ch, Args ... chs)
+    template<typename Str, typename ... Args>
+    static void AppendChar(Str& str, char ch, Args ... chs)
     {
-        str.push_back(static_cast<typename Str::value_type>(ch));
+        str.push_back(ch);
         AppendChar(str, chs...);
     }
 };
@@ -68,8 +67,8 @@ struct GenericStringEncoder : public StringEncoder<GenericStringEncoder<Fn>>
 {
     GenericStringEncoder(Fn fn) : m_fn(std::move(fn)) {}
 
-    template<typename CharT, typename AppendFn>
-    void EncodeChar(CharT ch, AppendFn&& fn) const
+    template<typename AppendFn>
+    void EncodeChar(char ch, AppendFn&& fn) const
     {
         m_fn(ch, std::forward<AppendFn>(fn));
     }
@@ -79,8 +78,8 @@ struct GenericStringEncoder : public StringEncoder<GenericStringEncoder<Fn>>
 
 struct UrlStringEncoder : public StringEncoder<UrlStringEncoder>
 {
-    template<typename CharT, typename Fn>
-    void EncodeChar(CharT ch, Fn&& fn) const
+    template<typename Fn>
+    void EncodeChar(char ch, Fn&& fn) const
     {
         enum EncodeStyle
         {
@@ -137,6 +136,8 @@ struct UrlStringEncoder : public StringEncoder<UrlStringEncoder>
         fn('%', ch1, ch2);
     }
 
+    // TODO(bwsq) these dont need to be generic
+    // ... actually, we dont need it at all if we know the size of a char
     template<typename Ch, size_t SZ>
     struct ToUnsigned;
 
@@ -159,7 +160,7 @@ struct UrlStringEncoder : public StringEncoder<UrlStringEncoder>
     };
 
     template<typename Ch>
-    auto AsUnsigned(Ch ch) const
+    uint32_t AsUnsigned(Ch ch) const
     {
         return static_cast<uint32_t>(ToUnsigned<Ch, sizeof(Ch)>::Cast(ch));
     }
@@ -245,8 +246,7 @@ InternalValue StringConverter::Filter(const InternalValue& baseVal, RenderContex
     case ReplaceMode:
         result = ApplyStringConverter(baseVal, [this, &context](auto srcStr) -> TargetString {
             std::decay_t<decltype(srcStr)> emptyStrView;
-            using CharT = typename decltype(emptyStrView)::value_type;
-            std::basic_string<CharT> emptyStr;
+            std::string emptyStr;
             auto oldStr = GetAsSameString(srcStr, this->GetArgumentValue("old", context)).value_or(emptyStr);
             auto newStr = GetAsSameString(srcStr, this->GetArgumentValue("new", context)).value_or(emptyStr);
             auto count = ConvertToInt(this->GetArgumentValue("count", context));
@@ -264,8 +264,7 @@ InternalValue StringConverter::Filter(const InternalValue& baseVal, RenderContex
     case TruncateMode:
         result = ApplyStringConverter(baseVal, [this, &context, &isAlNum](auto srcStr) -> TargetString {
             std::decay_t<decltype(srcStr)> emptyStrView;
-            using CharT = typename decltype(emptyStrView)::value_type;
-            std::basic_string<CharT> emptyStr;
+            std::string emptyStr;
             auto length = ConvertToInt(this->GetArgumentValue("length", context));
             auto killWords = ConvertToBool(this->GetArgumentValue("killwords", context));
             auto end = GetAsSameString(srcStr, this->GetArgumentValue("end", context));
@@ -351,8 +350,8 @@ InternalValue StringConverter::Filter(const InternalValue& baseVal, RenderContex
         result = ApplyStringConverter(baseVal, [](auto srcStr) -> TargetString {
             auto str = sv_to_string(srcStr);
             using StringT = decltype(str);
-            using CharT = typename StringT::value_type;
-            static const std::basic_regex<CharT> STRIPTAGS_RE("(<!--.*?-->|<[^>]*>)");
+            // TODO: hey, why not boost::regex if we choose
+            static const std::regex STRIPTAGS_RE("(<!--.*?-->|<[^>]*>)");
             str = std::regex_replace(str, STRIPTAGS_RE, "");
             ba::trim_all(str);
             static const StringT html_entities [] {

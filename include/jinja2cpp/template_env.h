@@ -219,7 +219,7 @@ public:
     }
 
 private:
-    template<typename CharT, typename T, typename Cache>
+    template<typename T, typename Cache>
     auto LoadTemplateImpl(TemplateEnv* env, std::string fileName, const T& filesystemHandlers, Cache& cache);
 
 

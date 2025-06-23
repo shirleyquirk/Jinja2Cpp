@@ -44,7 +44,7 @@ if (NOT JINJA2CPP_DEPS_MODE)
 endif ()
 
 if (JINJA2CPP_IS_MAIN_PROJECT OR NOT CMAKE_CXX_STANDARD)
-    set(JINJA2CPP_CXX_STANDARD 14 CACHE STRING "Jinja2Cpp C++ standard to build with. C++14 is default")
+    set(JINJA2CPP_CXX_STANDARD 23 CACHE STRING "Jinja2Cpp C++ standard to build with. C++14 is default")
     set(CMAKE_CXX_STANDARD ${JINJA2CPP_CXX_STANDARD})
 endif ()
 

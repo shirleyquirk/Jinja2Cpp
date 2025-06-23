@@ -655,10 +655,9 @@ auto MakeDynamicProperty(Fn&& fn)
     });
 }
 
-template<typename CharT>
-auto sv_to_string(const std::basic_string_view<CharT>& sv)
+inline auto sv_to_string(const std::string_view& sv)
 {
-    return std::basic_string<CharT>(sv.begin(), sv.end());
+    return std::string(sv.begin(), sv.end());
 }
 
 InternalValue Subscript(const InternalValue& val, const InternalValue& subscript, RenderContext* values);

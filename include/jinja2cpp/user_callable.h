@@ -63,11 +63,11 @@ struct ArgPromoter<T, std::enable_if_t<std::is_fundamental<T>::value>>
     const T* m_ptr;
 };
 
-template<typename CharT>
-struct ArgPromoter<std::basic_string<CharT>, void>
+template<>
+struct ArgPromoter<std::string, void>
 {
-    using string = std::basic_string<CharT>;
-    using string_view = std::basic_string_view<CharT>;
+    using string = std::string;
+    using string_view = std::string_view;
 
     ArgPromoter(const string* str)
         : m_ptr(str)
@@ -80,11 +80,11 @@ struct ArgPromoter<std::basic_string<CharT>, void>
     const string* m_ptr;
 };
 
-template<typename CharT>
-struct ArgPromoter<std::basic_string_view<CharT>, void>
+template<>
+struct ArgPromoter<std::string_view, void>
 {
-    using string = std::basic_string<CharT>;
-    using string_view = std::basic_string_view<CharT>;
+    using string = std::string;
+    using string_view = std::string_view;
 
     ArgPromoter(const string_view* str)
         : m_ptr(str)

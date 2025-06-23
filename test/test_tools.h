@@ -106,9 +106,9 @@ inline void StringToConsole(const std::string& str)
 class BasicTemplateRenderer : public ::testing::Test
 {
 public:
-    template<typename TemplateT, typename CharT>
-    static void ExecuteTest(const std::basic_string<CharT>& source,
-                            const std::basic_string<CharT>& expectedResult,
+    template<typename TemplateT>
+    static void ExecuteTest(const std::string& source,
+                            const std::string& expectedResult,
                             const jinja2::ValuesMap& params,
                             const char* version = "")
     {
@@ -133,8 +133,8 @@ public:
         EXPECT_EQ(expectedResult, result) << version;
     }
 
-    template<typename TemplateT, typename CharT>
-    void PerformTest(const std::basic_string<CharT>& source, const std::basic_string<CharT>& expectedResult, const jinja2::ValuesMap& params)
+    template<typename TemplateT>
+    void PerformTest(const std::string& source, const std::string& expectedResult, const jinja2::ValuesMap& params)
     {
         ExecuteTest<TemplateT>(source, expectedResult, params);
     }

@@ -15,16 +15,14 @@ namespace jinja2
 {
 class JINJA2CPP_EXPORT ITemplateImpl;
 class JINJA2CPP_EXPORT TemplateEnv;
-template<typename CharT>
 class TemplateImpl;
 template<typename U>
 using Result = std::expected<U, ErrorInfo>;
 
-template<typename CharT>
 struct MetadataInfo
 {
     std::string metadataType;
-    std::basic_string_view<CharT> metadata;
+    std::string_view metadata;
     SourceLocation location;
 };
 
@@ -146,7 +144,7 @@ public:
      *
      * @return Non-parsed metadata information or instance of \ref ErrorInfoTpl as an error
      */
-    Result<MetadataInfo<char>> GetMetadataRaw();
+    Result<MetadataInfo> GetMetadataRaw();
 
     /* !
      * \brief compares to an other object of the same type
@@ -157,7 +155,7 @@ public:
 
 private:
     std::shared_ptr<ITemplateImpl> m_impl;
-    friend class TemplateImpl<char>;
+    friend class TemplateImpl;
 };
 
 bool operator==(const Template& lhs, const Template& rhs);

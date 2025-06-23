@@ -118,8 +118,7 @@ struct SubscriptionVisitor : public visitors::BaseVisitor<>
 {
     using BaseVisitor<>::operator();
 
-    template<typename CharT>
-    InternalValue operator()(const MapAdapter& values, const std::basic_string<CharT>& fieldName) const
+    InternalValue operator()(const MapAdapter& values, const std::string& fieldName) const
     {
         auto field = std::string(fieldName);
         if (!values.HasValue(field))
@@ -128,8 +127,7 @@ struct SubscriptionVisitor : public visitors::BaseVisitor<>
         return values.GetValueByName(field);
     }
 
-    template<typename CharT>
-    InternalValue operator()(const MapAdapter& values, const std::basic_string_view<CharT>& fieldName) const
+    InternalValue operator()(const MapAdapter& values, const std::string_view& fieldName) const
     {
         auto field = std::string(fieldName);
         if (!values.HasValue(field))
@@ -138,8 +136,7 @@ struct SubscriptionVisitor : public visitors::BaseVisitor<>
         return values.GetValueByName(field);
     }
 
-    template<typename CharT>
-    InternalValue operator()(std::basic_string<CharT> value, const std::basic_string<CharT>& /*fieldName*/) const
+    InternalValue operator()(std::string value, const std::string& /*fieldName*/) const
     {
         return TargetString(std::move(value));
     }
@@ -154,37 +151,33 @@ struct SubscriptionVisitor : public visitors::BaseVisitor<>
 
     InternalValue operator()(const MapAdapter& /*values*/, int64_t /*index*/) const { return InternalValue(); }
 
-    template<typename CharT>
-    InternalValue operator()(const std::basic_string<CharT>& str, int64_t index) const
+    InternalValue operator()(const std::string& str, int64_t index) const
     {
         if (index < 0 || static_cast<size_t>(index) >= str.size())
             return InternalValue();
 
-        std::basic_string<CharT> resultStr(1, str[static_cast<size_t>(index)]);
+        std::string resultStr(1, str[static_cast<size_t>(index)]);
         return TargetString(std::move(resultStr));
     }
 
-    template<typename CharT>
-    InternalValue operator()(const std::basic_string_view<CharT>& str, int64_t index) const
+    InternalValue operator()(const std::string_view& str, int64_t index) const
     {
-        // std::cout << "operator() (const std::basic_string<CharT>& str, int64_t index)" << ": index = " << index << std::endl;
+        // std::cout << "operator() (const std::string& str, int64_t index)" << ": index = " << index << std::endl;
         if (index < 0 || static_cast<size_t>(index) >= str.size())
             return InternalValue();
 
-        std::basic_string<CharT> result(1, str[static_cast<size_t>(index)]);
+        std::string result(1, str[static_cast<size_t>(index)]);
         return TargetString(std::move(result));
     }
 
-    template<typename CharT>
-    InternalValue operator()(const KeyValuePair& values, const std::basic_string<CharT>& fieldName) const
+    InternalValue operator()(const KeyValuePair& values, const std::string& fieldName) const
     {
         return SubscriptKvPair(values, fieldName);
     }
 
     // NOTE(bwsq) whats the point of supporting string view if you're gonna immediately copy into a string at the first opportunity?
     // TODO
-    template<typename CharT>
-    InternalValue operator()(const KeyValuePair& values, const std::basic_string_view<CharT>& fieldName) const
+    InternalValue operator()(const KeyValuePair& values, const std::string_view& fieldName) const
     {
         return SubscriptKvPair(values, std::string(fieldName.begin(),fieldName.end()));
     }
@@ -266,18 +259,16 @@ struct ListConverter : public visitors::BaseVisitor<boost::optional<ListAdapter>
         return ListAdapter::CreateAdapter(std::move(list));
     }
 
-    template<typename CharT>
-    result_t operator() (const std::basic_string<CharT>& str) const
+    result_t operator() (const std::string& str) const
     {
         return strictConvertion ? result_t() : result_t(ListAdapter::CreateAdapter(str.size(), [str](size_t idx) {
             return TargetString(str.substr(idx, 1));}));
     }
 
-    template<typename CharT>
-    result_t operator()(const std::basic_string_view<CharT>& str) const
+    result_t operator()(const std::string_view& str) const
     {
         return strictConvertion ? result_t() : result_t(ListAdapter::CreateAdapter(str.size(), [str](size_t idx) {
-            return TargetString(std::basic_string<CharT>(str[idx], 1)); }));
+            return TargetString(std::string(str[idx], 1)); }));
     }
 };
 

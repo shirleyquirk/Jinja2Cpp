@@ -336,11 +336,10 @@ void BlockStatement::Render(OutStream& os, RenderContext& values)
     m_mainBody->Render(os, values);
 }
 
-template<typename CharT>
 class ParentTemplateRenderer : public IBlocksRenderer
 {
 public:
-    ParentTemplateRenderer(std::shared_ptr<TemplateImpl<CharT>> tpl, ExtendsStatement::BlocksCollection* blocks)
+    ParentTemplateRenderer(std::shared_ptr<TemplateImpl> tpl, ExtendsStatement::BlocksCollection* blocks)
         : m_template(tpl)
         , m_blocks(blocks)
     {
@@ -393,7 +392,7 @@ public:
     }
 
 private:
-    std::shared_ptr<TemplateImpl<CharT>> m_template;
+    std::shared_ptr<TemplateImpl> m_template;
     ExtendsStatement::BlocksCollection* m_blocks;
 };
 
@@ -410,8 +409,7 @@ struct TemplateImplVisitor
     {
     }
 
-    template<typename CharT>
-    Result operator()(std::expected<std::shared_ptr<TemplateImpl<CharT>>, ErrorInfoTpl<CharT>> tpl) const
+    Result operator()(std::expected<std::shared_ptr<TemplateImpl>, ErrorInfoTpl> tpl) const
     {
         if (!m_throwError && !tpl)
         {
@@ -433,10 +431,10 @@ Result VisitTemplateImpl(Arg&& tpl, bool throwError, Fn&& fn)
     return visit(TemplateImplVisitor<Result, Fn>(fn, throwError), tpl);
 }
 
-template<template<typename T> class RendererTpl, typename CharT, typename... Args>
-auto CreateTemplateRenderer(std::shared_ptr<TemplateImpl<CharT>> tpl, Args&&... args)
+template<class RendererTpl, typename... Args>
+auto CreateTemplateRenderer(std::shared_ptr<TemplateImpl> tpl, Args&&... args)
 {
-    return std::make_shared<RendererTpl<CharT>>(tpl, std::forward<Args>(args)...);
+    return std::make_shared<RendererTpl>(tpl, std::forward<Args>(args)...);
 }
 
 void ExtendsStatement::Render(OutStream& os, RenderContext& values)
@@ -453,11 +451,10 @@ void ExtendsStatement::Render(OutStream& os, RenderContext& values)
         renderer->Render(os, values);
 }
 
-template<typename CharT>
 class IncludedTemplateRenderer : public IRendererBase
 {
 public:
-    IncludedTemplateRenderer(std::shared_ptr<TemplateImpl<CharT>> tpl, bool withContext)
+    IncludedTemplateRenderer(std::shared_ptr<TemplateImpl> tpl, bool withContext)
         : m_template(tpl)
         , m_withContext(withContext)
     {
@@ -483,7 +480,7 @@ public:
 
     bool IsEqual(const IComparable& other) const override
     {
-        auto* val = dynamic_cast<const IncludedTemplateRenderer<CharT>*>(&other);
+        auto* val = dynamic_cast<const IncludedTemplateRenderer*>(&other);
         if (!val)
             return false;
         if (m_template != val->m_template)
@@ -494,7 +491,7 @@ public:
     }
 
 private:
-    std::shared_ptr<TemplateImpl<CharT>> m_template;
+    std::shared_ptr<TemplateImpl> m_template;
     bool m_withContext{};
 };
 
@@ -518,7 +515,7 @@ void IncludeStatement::Render(OutStream& os, RenderContext& values)
                 return true;
             }
         }
-        catch (const ErrorInfoTpl<char>& err)
+        catch (const ErrorInfoTpl& err)
         {
             if (err.GetCode() != ErrorCode::FileNotFound)
                 throw;

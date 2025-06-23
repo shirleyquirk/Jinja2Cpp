@@ -65,11 +65,7 @@ public:
 };
 
 
-template<typename U>
-struct TemplateLoader;
-
-template<>
-struct TemplateLoader<char>
+struct TemplateLoader
 {
     static auto Load(const std::string& fileName, TemplateEnv* env)
     {
@@ -77,95 +73,48 @@ struct TemplateLoader<char>
     }
 };
 
-template<typename CharT>
 class GenericStreamWriter : public OutStream::StreamWriter
 {
 public:
-    explicit GenericStreamWriter(std::basic_string<CharT>& os)
+    explicit GenericStreamWriter(std::string& os)
         : m_os(os)
     {}
 
     // StreamWriter interface
     void WriteBuffer(const void* ptr, size_t length) override
     {
-        m_os.append(reinterpret_cast<const CharT*>(ptr), length);
+        m_os.append(reinterpret_cast<const char*>(ptr), length);
     }
     void WriteValue(const InternalValue& val) override
     {
-        Apply<visitors::ValueRenderer<CharT>>(val, m_os);
+        Apply<visitors::ValueRenderer>(val, m_os);
     }
 
 private:
-    std::basic_string<CharT>& m_os;
+    std::string& m_os;
 };
 
-template<typename CharT>
 class StringStreamWriter : public OutStream::StreamWriter
 {
 public:
-    explicit StringStreamWriter(std::basic_string<CharT>* targetStr)
+    explicit StringStreamWriter(std::string* targetStr)
         : m_targetStr(targetStr)
     {}
 
     // StreamWriter interface
     void WriteBuffer(const void* ptr, size_t length) override
     {
-        m_targetStr->append(reinterpret_cast<const CharT*>(ptr), length);
-        // m_os.write(reinterpret_cast<const CharT*>(ptr), length);
+        m_targetStr->append(reinterpret_cast<const char*>(ptr), length);
+        // m_os.write(reinterpret_cast<const char*>(ptr), length);
     }
     void WriteValue(const InternalValue& val) override
     {
-        Apply<visitors::ValueRenderer<CharT>>(val, *m_targetStr);
+        Apply<visitors::ValueRenderer>(val, *m_targetStr);
     }
 
 private:
-    std::basic_string<CharT>* m_targetStr;
+    std::string* m_targetStr;
 };
-
-template<typename ErrorTpl1, typename ErrorTpl2>
-struct ErrorConverter;
-
-template<typename CharT1, typename CharT2>
-struct ErrorConverter<ErrorInfoTpl<CharT1>, ErrorInfoTpl<CharT2>>
-{
-    static ErrorInfoTpl<CharT1> Convert(const ErrorInfoTpl<CharT2>& srcError)
-    {
-        typename ErrorInfoTpl<CharT1>::Data errorData;
-        errorData.code = srcError.GetCode();
-        errorData.srcLoc = srcError.GetErrorLocation();
-        errorData.locationDescr = std::basic_string<CharT1>(srcError.GetLocationDescr());
-        errorData.extraParams = srcError.GetExtraParams();
-
-        return ErrorInfoTpl<CharT1>(errorData);
-    }
-};
-
-template<typename CharT>
-struct ErrorConverter<ErrorInfoTpl<CharT>, ErrorInfoTpl<CharT>>
-{
-    static const ErrorInfoTpl<CharT>& Convert(const ErrorInfoTpl<CharT>& srcError)
-    {
-        return srcError;
-    }
-};
-
-template<typename CharT>
-inline bool operator==(const MetadataInfo<CharT>& lhs, const MetadataInfo<CharT>& rhs)
-{
-    if (lhs.metadata != rhs.metadata)
-        return false;
-    if (lhs.metadataType != rhs.metadataType)
-        return false;
-    if (lhs.location != rhs.location)
-        return false;
-    return true;
-}
-
-template<typename CharT>
-inline bool operator!=(const MetadataInfo<CharT>& lhs, const MetadataInfo<CharT>& rhs)
-{
-    return !(lhs == rhs);
-}
 
 inline bool operator==(const TemplateEnv& lhs, const TemplateEnv& rhs)
 {
@@ -191,11 +140,27 @@ inline bool operator!=(const SourceLocation& lhs, const SourceLocation& rhs)
     return !(lhs == rhs);
 }
 
-template<typename CharT>
+inline bool operator==(const MetadataInfo& lhs, const MetadataInfo& rhs)
+{
+    if (lhs.metadata != rhs.metadata)
+        return false;
+    if (lhs.metadataType != rhs.metadataType)
+        return false;
+    if (lhs.location != rhs.location)
+        return false;
+    return true;
+}
+
+inline bool operator!=(const MetadataInfo& lhs, const MetadataInfo& rhs)
+{
+    return !(lhs == rhs);
+}
+
+
 class TemplateImpl : public ITemplateImpl
 {
 public:
-    using ThisType = TemplateImpl<CharT>;
+    using ThisType = TemplateImpl;
 
     explicit TemplateImpl(TemplateEnv* env)
         : m_env(env)
@@ -207,11 +172,11 @@ public:
     auto GetRenderer() const {return m_renderer;}
     auto GetTemplateName() const {};
 
-    boost::optional<ErrorInfoTpl<CharT>> Load(std::basic_string<CharT> tpl, std::string tplName)
+    boost::optional<ErrorInfoTpl> Load(std::string tpl, std::string tplName)
     {
         m_template = std::move(tpl);
         m_templateName = tplName.empty() ? std::string("noname.j2tpl") : std::move(tplName);
-        TemplateParser<CharT> parser(&m_template, m_settings, m_env, m_templateName);
+        TemplateParser parser(&m_template, m_settings, m_env, m_templateName);
 
         auto parseResult = parser.Parse();
         if (!parseResult)
@@ -219,22 +184,22 @@ public:
 
         m_renderer = *parseResult;
         m_metadataInfo = parser.GetMetadataInfo();
-        return boost::optional<ErrorInfoTpl<CharT>>();
+        return boost::optional<ErrorInfoTpl>();
     }
 
-    boost::optional<ErrorInfoTpl<CharT>> Render(std::basic_string<CharT>& os, const ValuesMap& params)
+    boost::optional<ErrorInfoTpl> Render(std::string& os, const ValuesMap& params)
     {
-        boost::optional<ErrorInfoTpl<CharT>> normalResult;
+        boost::optional<ErrorInfoTpl> normalResult;
 
         if (!m_renderer)
         {
-            typename ErrorInfoTpl<CharT>::Data errorData;
+            typename ErrorInfoTpl::Data errorData;
             errorData.code = ErrorCode::TemplateNotParsed;
             errorData.srcLoc.col = 1;
             errorData.srcLoc.line = 1;
             errorData.srcLoc.fileName = "<unknown file>";
 
-            return ErrorInfoTpl<CharT>(errorData);
+            return ErrorInfoTpl(errorData);
         }
 
         try
@@ -266,23 +231,23 @@ public:
             RendererCallback callback(this);
             RenderContext context(intParams, extParams, &callback);
             InitRenderContext(context);
-            OutStream outStream([writer = GenericStreamWriter<CharT>(os)]() mutable -> OutStream::StreamWriter* {return &writer;});
+            OutStream outStream([writer = GenericStreamWriter(os)]() mutable -> OutStream::StreamWriter* {return &writer;});
             m_renderer->Render(outStream, context);
         }
-        catch (const ErrorInfoTpl<char>& error)
+        catch (const ErrorInfoTpl& error)
         {
-            return ErrorConverter<ErrorInfoTpl<CharT>, ErrorInfoTpl<char>>::Convert(error);
+            return error;
         }
         catch (const std::exception& ex)
         {
-            typename ErrorInfoTpl<CharT>::Data errorData;
+            typename ErrorInfoTpl::Data errorData;
             errorData.code = ErrorCode::UnexpectedException;
             errorData.srcLoc.col = 1;
             errorData.srcLoc.line = 1;
             errorData.srcLoc.fileName = m_templateName;
             errorData.extraParams.push_back(Value(std::string(ex.what())));
 
-            return ErrorInfoTpl<CharT>(errorData);
+            return ErrorInfoTpl(errorData);
         }
 
         return normalResult;
@@ -295,16 +260,16 @@ public:
     }
 
     using TplLoadResultType = std::variant<EmptyValue,
-            std::expected<std::shared_ptr<TemplateImpl<char>>, ErrorInfo>>;
+            std::expected<std::shared_ptr<TemplateImpl>, ErrorInfo>>;
 
-    using TplOrError = std::expected<std::shared_ptr<TemplateImpl<CharT>>, ErrorInfoTpl<CharT>>;
+    using TplOrError = std::expected<std::shared_ptr<TemplateImpl>, ErrorInfoTpl>;
 
     TplLoadResultType LoadTemplate(const std::string& fileName)
     {
         if (!m_env)
             return TplLoadResultType(EmptyValue());
 
-        auto tplWrapper = TemplateLoader<CharT>::Load(fileName, m_env);
+        auto tplWrapper = TemplateLoader::Load(fileName, m_env);
         if (!tplWrapper)
             return TplLoadResultType(TplOrError(std::unexpected{tplWrapper.error()}));
 
@@ -316,19 +281,19 @@ public:
         auto name = GetAsSameString(std::string(), fileName);
         if (!name)
         {
-            typename ErrorInfoTpl<CharT>::Data errorData;
+            typename ErrorInfoTpl::Data errorData;
             errorData.code = ErrorCode::InvalidTemplateName;
             errorData.srcLoc.col = 1;
             errorData.srcLoc.line = 1;
             errorData.srcLoc.fileName = m_templateName;
             errorData.extraParams.push_back(IntValue2Value(fileName));
-            return TplOrError(std::unexpected(ErrorInfoTpl<CharT>(errorData)));
+            return TplOrError(std::unexpected(ErrorInfoTpl(errorData)));
         }
 
         return LoadTemplate(name.value());
     }
 
-    std::expected<GenericMap, ErrorInfoTpl<CharT>> GetMetadata() const
+    std::expected<GenericMap, ErrorInfoTpl> GetMetadata() const
     {
         auto& metadataString = m_metadataInfo.metadata;
         if (metadataString.empty())
@@ -340,12 +305,12 @@ public:
             rapidjson::ParseResult res = m_metadataJson.value().Parse(metadataString.data(), metadataString.size());
             if (!res)
             {
-                typename ErrorInfoTpl<CharT>::Data errorData;
+                typename ErrorInfoTpl::Data errorData;
                 errorData.code = ErrorCode::MetadataParseError;
                 errorData.srcLoc = m_metadataInfo.location;
                 std::string jsonError = rapidjson::GetParseError_En(res.Code());
                 errorData.extraParams.push_back(Value(std::move(jsonError)));
-                return std::unexpected(ErrorInfoTpl<CharT>(errorData));
+                return std::unexpected(ErrorInfoTpl(errorData));
             }
             m_metadata = std::move(std::get<GenericMap>(Reflect(m_metadataJson.value()).data()));
             return m_metadata.value();
@@ -353,9 +318,9 @@ public:
         return GenericMap();
     }
 
-    std::expected<MetadataInfo<CharT>, ErrorInfoTpl<CharT>> GetMetadataRaw() const { return m_metadataInfo; }
+    std::expected<MetadataInfo, ErrorInfoTpl> GetMetadataRaw() const { return m_metadataInfo; }
 
-    bool operator==(const TemplateImpl<CharT>& other) const
+    bool operator==(const TemplateImpl& other) const
     {
         if (m_env && other.m_env)
         {
@@ -379,14 +344,14 @@ public:
 private:
     void ThrowRuntimeError(ErrorCode code, ValuesList extraParams)
     {
-        typename ErrorInfoTpl<CharT>::Data errorData;
+        typename ErrorInfoTpl::Data errorData;
         errorData.code = code;
         errorData.srcLoc.col = 1;
         errorData.srcLoc.line = 1;
         errorData.srcLoc.fileName = m_templateName;
         errorData.extraParams = std::move(extraParams);
 
-        throw ErrorInfoTpl<CharT>(std::move(errorData));
+        throw ErrorInfoTpl(std::move(errorData));
     }
 
     class RendererCallback : public IRendererCallback
@@ -398,26 +363,26 @@ private:
 
         TargetString GetAsTargetString(const InternalValue& val) override
         {
-            std::basic_string<CharT> os;
-            Apply<visitors::ValueRenderer<CharT>>(val, os);
+            std::string os;
+            Apply<visitors::ValueRenderer>(val, os);
             return TargetString(std::move(os));
         }
 
         OutStream GetStreamOnString(TargetString& str) override
         {
-            using string_t = std::basic_string<CharT>;
+            using string_t = std::string;
             str = string_t();
-            return OutStream([writer = StringStreamWriter<CharT>(&std::get<string_t>(str))]() mutable -> OutStream::StreamWriter* { return &writer; });
+            return OutStream([writer = StringStreamWriter(&std::get<string_t>(str))]() mutable -> OutStream::StreamWriter* { return &writer; });
         }
 
         std::variant<EmptyValue,
-            std::expected<std::shared_ptr<TemplateImpl<char>>, ErrorInfo>> LoadTemplate(const std::string& fileName) const override
+            std::expected<std::shared_ptr<TemplateImpl>, ErrorInfo>> LoadTemplate(const std::string& fileName) const override
         {
             return m_host->LoadTemplate(fileName);
         }
 
         std::variant<EmptyValue,
-                std::expected<std::shared_ptr<TemplateImpl<char>>, ErrorInfo>> LoadTemplate(const InternalValue& fileName) const override
+                std::expected<std::shared_ptr<TemplateImpl>, ErrorInfo>> LoadTemplate(const InternalValue& fileName) const override
         {
             return m_host->LoadTemplate(fileName);
         }
@@ -454,16 +419,16 @@ private:
         ThisType* m_host;
     };
 private:
-    using JsonDocumentType = rapidjson::GenericDocument<typename detail::RapidJsonEncodingType<sizeof(CharT)>::type>;
+    using JsonDocumentType = rapidjson::GenericDocument<typename detail::RapidJsonEncodingType<sizeof(char)>::type>;
 
     TemplateEnv* m_env{};
     Settings m_settings;
-    std::basic_string<CharT> m_template;
+    std::string m_template;
     std::string m_templateName;
     RendererPtr m_renderer;
     mutable std::optional<GenericMap> m_metadata;
     mutable std::optional<JsonDocumentType> m_metadataJson;
-    MetadataInfo<CharT> m_metadataInfo;
+    MetadataInfo m_metadataInfo;
 };
 
 } // namespace jinja2

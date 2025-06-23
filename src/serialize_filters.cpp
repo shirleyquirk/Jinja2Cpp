@@ -97,7 +97,7 @@ struct PrettyPrinter : visitors::BaseVisitor<std::string>
 
     std::string operator()(const std::string& str) const { return fmt::format("'{}'", str); }
 
-    std::string operator()(const std::string_view& str) const { return fmt::format("'{}'", fmt::basic_string_view<char>(str.data(), str.size())); }
+    std::string operator()(const std::string_view& str) const { return fmt::format("'{}'", str); }
 
     std::string operator()(bool val) const { return val ? "true"s : "false"s; }
 
@@ -323,7 +323,7 @@ public:
     {
         EnforceThatNested();
 
-        const auto result = fmt::format("{}", fmt::basic_string_view<char>(str.data(), str.size()));
+        const auto result = fmt::format("{}", str);
         return EscapeHtml(result);
     }
 

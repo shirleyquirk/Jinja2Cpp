@@ -85,7 +85,7 @@ ValueWrapper::ValueWrapper(boost::json::value&& value)
 {
 }
 
-void PrettyPrint(fmt::basic_memory_buffer<char>& os, const boost::json::value& jv, uint8_t indent = 4, int level = 0)
+void PrettyPrint(fmt::memory_buffer& os, const boost::json::value& jv, uint8_t indent = 4, int level = 0)
 {
     switch (jv.kind())
     {

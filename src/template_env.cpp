@@ -3,21 +3,18 @@
 
 namespace jinja2
 {
-template<typename CharT>
-struct TemplateFunctions;
 
-template<>
-struct TemplateFunctions<char>
+struct TemplateFunctions
 {
     using ResultType = std::expected<Template, ErrorInfo>;
     static Template CreateTemplate(TemplateEnv* env) { return Template(env); }
     static auto LoadFile(const std::string& fileName, const IFilesystemHandler* fs) { return fs->OpenStream(fileName); }
 };
 
-template<typename CharT, typename T, typename Cache>
+template<typename T, typename Cache>
 auto TemplateEnv::LoadTemplateImpl(TemplateEnv* env, std::string fileName, const T& filesystemHandlers, Cache& cache)
 {
-    using Functions = TemplateFunctions<CharT>;
+    using Functions = TemplateFunctions;
     using ResultType = typename Functions::ResultType;
     using ErrorType = typename ResultType::error_type;
     auto tpl = Functions::CreateTemplate(env);
@@ -76,7 +73,7 @@ auto TemplateEnv::LoadTemplateImpl(TemplateEnv* env, std::string fileName, const
 
 std::expected<Template, ErrorInfo> TemplateEnv::LoadTemplate(std::string fileName)
 {
-    return LoadTemplateImpl<char>(this, std::move(fileName), m_filesystemHandlers, m_templateCache);
+    return LoadTemplateImpl(this, std::move(fileName), m_filesystemHandlers, m_templateCache);
 }
 
 } // namespace jinja2

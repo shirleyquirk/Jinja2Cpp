@@ -518,22 +518,22 @@ struct Reflector<std::shared_ptr<T>>
     }
 };
 
-template<typename CharT>
-struct Reflector<std::basic_string<CharT>>
+template<>
+struct Reflector<std::string>
 {
-    static auto Create(std::basic_string<CharT> str) {
+    static auto Create(std::string str) {
         return Value(std::move(str));
     }
-    static auto CreateFromPtr(const std::basic_string<CharT>* str) {
+    static auto CreateFromPtr(const std::string* str) {
         return Value(*str);
     }
 };
 
-template<typename CharT>
-struct Reflector<std::basic_string_view<CharT>>
+template<>
+struct Reflector<std::string_view>
 {
-    static auto Create(std::basic_string_view<CharT> str) { return Value(std::move(str)); }
-    static auto CreateFromPtr(const std::basic_string_view<CharT>* str) { return Value(*str); }
+    static auto Create(std::string_view str) { return Value(std::move(str)); }
+    static auto CreateFromPtr(const std::string_view* str) { return Value(*str); }
 };
 
 template<>

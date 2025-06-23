@@ -63,7 +63,7 @@ struct SourceLocation
     unsigned col = 0;
 };
 
-template<typename CharT>
+// TODO(bwsq) rename ErrorInfoTpl to just plain ErrorInfo
 /*!
  * \brief Detailed information about the parse-time or render-time error
  *
@@ -77,7 +77,6 @@ template<typename CharT>
  * - Description of the location
  * - Extra parameters of the error
  *
- * @tparam CharT Character type which was used in template parser
  */
 class ErrorInfoTpl
 {
@@ -88,7 +87,7 @@ public:
         SourceLocation srcLoc;
         std::vector<SourceLocation> relatedLocs;
         std::vector<Value> extraParams;
-        std::basic_string<CharT> locationDescr;
+        std::string locationDescr;
     };
 
     //! Default constructor
@@ -99,9 +98,9 @@ public:
     {}
 
     //! Copy constructor
-    ErrorInfoTpl(const ErrorInfoTpl<CharT>&) = default;
+    ErrorInfoTpl(const ErrorInfoTpl&) = default;
     //! Move constructor
-    ErrorInfoTpl(ErrorInfoTpl<CharT>&& val) noexcept
+    ErrorInfoTpl(ErrorInfoTpl&& val) noexcept
         : m_errorData(std::move(val.m_errorData))
     { }
 
@@ -109,9 +108,9 @@ public:
     ~ErrorInfoTpl() noexcept = default;
 
     //! Copy-assignment operator
-    ErrorInfoTpl& operator =(const ErrorInfoTpl<CharT>&) = default;
+    ErrorInfoTpl& operator =(const ErrorInfoTpl&) = default;
     //! Move-assignment operator
-    ErrorInfoTpl& operator =(ErrorInfoTpl<CharT>&& val) noexcept
+    ErrorInfoTpl& operator =(ErrorInfoTpl&& val) noexcept
     {
         if (this == &val)
             return *this;
@@ -154,7 +153,7 @@ public:
      *
      * @return Location description
      */
-    const std::basic_string<CharT>& GetLocationDescr() const
+    const std::string& GetLocationDescr() const
     {
         return m_errorData.locationDescr;
     }
@@ -169,13 +168,13 @@ public:
     auto& GetExtraParams() const { return m_errorData.extraParams; }
 
     //! Convert error to the detailed string representation
-    JINJA2CPP_EXPORT std::basic_string<CharT> ToString() const;
+    JINJA2CPP_EXPORT std::string ToString() const;
 
 private:
     Data m_errorData;
 };
 
-using ErrorInfo = ErrorInfoTpl<char>;
+using ErrorInfo = ErrorInfoTpl;
 
 JINJA2CPP_EXPORT std::ostream& operator<<(std::ostream& os, const ErrorInfo& res);
 } // namespace jinja2
